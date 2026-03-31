@@ -358,6 +358,111 @@
       font-size: 0.72rem; color: var(--accent3); margin-left: auto;
     }
 
+    /* Header actions */
+    .header-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+
+    .btn-header {
+      background: none; border: 1px solid var(--border); border-radius: 8px;
+      padding: 7px 14px; font-size: 0.8rem; color: var(--text-muted);
+      cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 6px;
+    }
+    .btn-header:hover { border-color: var(--accent); color: var(--text); }
+
+    /* Settings modal */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 200; backdrop-filter: blur(4px);
+    }
+    .modal-overlay.hidden { display: none; }
+
+    .modal {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 28px; width: 460px; max-width: 90vw;
+    }
+    .modal h3 { font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
+    .modal .modal-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px; }
+
+    .modal-field { margin-bottom: 16px; }
+    .modal-field label { display: block; font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+    .modal-field input {
+      width: 100%; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 12px; font-size: 0.85rem; color: var(--text);
+      outline: none; font-family: monospace;
+    }
+    .modal-field input:focus { border-color: var(--accent); }
+
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+    .btn-modal-cancel {
+      background: none; border: 1px solid var(--border); border-radius: 8px;
+      padding: 9px 18px; font-size: 0.85rem; color: var(--text-muted); cursor: pointer;
+    }
+    .btn-modal-save {
+      background: var(--accent); border: none; border-radius: 8px;
+      padding: 9px 18px; font-size: 0.85rem; color: white; cursor: pointer; font-weight: 500;
+    }
+
+    .api-status {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 0.75rem; margin-top: 6px;
+    }
+    .api-status .dot { width: 6px; height: 6px; border-radius: 50%; }
+    .api-status.active .dot { background: var(--accent3); }
+    .api-status.inactive .dot { background: var(--text-dim); }
+
+    /* Overlay */
+    .overlay-row {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 12px; background: var(--surface2); border-radius: 8px;
+    }
+    .overlay-row label { font-size: 0.8rem; color: var(--text-muted); flex: 1; }
+    .overlay-select {
+      background: var(--surface3); border: 1px solid var(--border);
+      border-radius: 6px; padding: 4px 8px; font-size: 0.78rem; color: var(--text); outline: none;
+    }
+
+    /* Story angles */
+    .story-angles { display: flex; flex-direction: column; gap: 8px; }
+
+    .angle-item {
+      background: var(--surface2); border-radius: 8px; padding: 12px;
+      border-left: 3px solid var(--accent2); font-size: 0.8rem; line-height: 1.6;
+    }
+    .angle-label {
+      font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--accent2); margin-bottom: 5px;
+    }
+    .angle-headline {
+      font-weight: 600; font-size: 0.85rem; margin-bottom: 4px; color: var(--text);
+    }
+    .angle-body { color: var(--text-muted); }
+
+    .btn-generate-ai {
+      width: 100%; border: 1px solid rgba(124,106,247,0.4); border-radius: 8px;
+      padding: 10px; font-size: 0.8rem; color: var(--accent); cursor: pointer;
+      background: rgba(124,106,247,0.08); transition: all 0.15s; font-weight: 500;
+    }
+    .btn-generate-ai:hover { background: rgba(124,106,247,0.15); border-color: var(--accent); }
+    .btn-generate-ai:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .ai-angles { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+
+    .ai-angle-item {
+      background: linear-gradient(135deg, rgba(124,106,247,0.06), rgba(247,106,143,0.04));
+      border: 1px solid rgba(124,106,247,0.15);
+      border-radius: 8px; padding: 13px; font-size: 0.8rem; line-height: 1.6;
+    }
+    .ai-angle-headline { font-weight: 600; font-size: 0.85rem; margin-bottom: 5px; color: var(--text); }
+    .ai-angle-body { color: var(--text-muted); }
+
+    /* Map color scheme */
+    .color-scheme-row { display: flex; gap: 5px; align-items: center; }
+    .color-swatch {
+      width: 24px; height: 24px; border-radius: 5px; cursor: pointer;
+      border: 2px solid transparent; transition: all 0.15s;
+    }
+    .color-swatch.active { border-color: var(--text); transform: scale(1.1); }
+
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 2px; }
@@ -375,7 +480,31 @@
 <header class="header">
   <div class="logo-mark" onclick="goHome()" style="cursor:pointer">◈</div>
   <div class="logo-text" onclick="goHome()" style="cursor:pointer">data story <span>copilot</span></div>
+  <div class="header-actions" id="header-actions" style="display:none">
+    <button class="btn-header" onclick="goHome()">← New dataset</button>
+    <button class="btn-header" onclick="openSettings()">⚙ AI Settings</button>
+  </div>
 </header>
+
+<!-- Settings Modal -->
+<div class="modal-overlay hidden" id="settings-modal" onclick="if(event.target===this)closeSettings()">
+  <div class="modal">
+    <h3>AI Settings</h3>
+    <p class="modal-desc">Add your Claude API key to enable AI-powered story angles and narrative insights. Your key is stored only in your browser — never sent to any server.</p>
+    <div class="modal-field">
+      <label>Claude API Key</label>
+      <input type="password" id="api-key-input" placeholder="sk-ant-..." />
+      <div class="api-status inactive" id="api-status">
+        <div class="dot"></div>
+        <span id="api-status-text">No key saved</span>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="closeSettings()">Cancel</button>
+      <button class="btn-modal-save" onclick="saveApiKey()">Save key</button>
+    </div>
+  </div>
+</div>
 
 <div id="upload-screen">
   <div class="hero">
@@ -464,11 +593,35 @@
           <label>Show outliers</label>
           <div class="toggle on" id="outlier-toggle" onclick="toggleOutliers()"></div>
         </div>
+        <div class="overlay-row" id="overlay-row" style="display:none; margin-top:8px">
+          <label>Overlay column</label>
+          <select class="overlay-select" id="overlay-select" onchange="setOverlay(this.value)">
+            <option value="">None</option>
+          </select>
+        </div>
+        <div id="map-color-row" style="display:none; margin-top:8px">
+          <div class="sidebar-section-label" style="margin-bottom:8px">Map color</div>
+          <div class="color-scheme-row">
+            <div class="color-swatch active" data-scheme="risk" style="background:linear-gradient(to right,#313695,#ffffbf,#a50026)" title="Risk (blue→red)" onclick="setColorScheme('risk',this)"></div>
+            <div class="color-swatch" data-scheme="heat" style="background:linear-gradient(to right,#fff7ec,#fe9929,#7f0000)" title="Heat" onclick="setColorScheme('heat',this)"></div>
+            <div class="color-swatch" data-scheme="green" style="background:linear-gradient(to right,#f7fcf5,#74c476,#00441b)" title="Greens" onclick="setColorScheme('green',this)"></div>
+            <div class="color-swatch" data-scheme="purple" style="background:linear-gradient(to right,#fcfbfd,#9e9ac8,#3f007d)" title="Purples" onclick="setColorScheme('purple',this)"></div>
+            <div class="color-swatch" data-scheme="diverge" style="background:linear-gradient(to right,#d53e4f,#ffffbf,#3288bd)" title="Diverging" onclick="setColorScheme('diverge',this)"></div>
+          </div>
+        </div>
       </div>
-      <div class="ai-section">
-        <h4>✦ AI Insights <span class="ai-badge">Beta</span></h4>
-        <p>Unlock narrative analysis, story angles, and deeper pattern explanations powered by Claude.</p>
-        <button class="btn-ai" onclick="openAiPanel()">Enable AI layer →</button>
+
+      <div>
+        <div class="sidebar-section-label">Story Angles</div>
+        <div class="story-angles" id="story-angles">
+          <div style="color:var(--text-dim); font-size:0.8rem; padding:4px 0;">Select a column to see story suggestions</div>
+        </div>
+        <div id="ai-angles-section" style="margin-top:12px">
+          <button class="btn-generate-ai" id="btn-ai-angles" onclick="generateAIAngles()" style="display:none">
+            ✦ Generate AI story angles
+          </button>
+          <div class="ai-angles" id="ai-angles"></div>
+        </div>
       </div>
     </aside>
 
@@ -499,12 +652,14 @@ let state = {
   activeXCol: null,
   activeYCol: null,
   activeSizeCol: null,
+  overlayColumn: null,
   chartType: 'bar',
   showOutliers: true,
   filename: '',
-  geoColumn: null,       // detected FIPS/geo column name
-  mapValueCol: null,     // which numeric col to color map by
-  binMethod: 'quantile', // quantile | equal
+  geoColumn: null,
+  mapValueCol: null,
+  binMethod: 'quantile',
+  colorScheme: 'risk',
 };
 let chart = null;
 let topoCache = null;
@@ -733,6 +888,8 @@ function processData(data, filename) {
   document.getElementById('upload-screen').style.display = 'none';
   document.getElementById('workspace').style.display = 'block';
   document.getElementById('upload-fab').style.display = 'block';
+  document.getElementById('header-actions').style.display = 'flex';
+  updateApiStatus();
   document.getElementById('filename').textContent = filename;
   document.getElementById('row-count').textContent = data.length.toLocaleString();
   document.getElementById('col-count').textContent = state.columns.length;
@@ -807,6 +964,18 @@ function selectColumn(colName) {
     </div>
   `).join('');
 
+  // Overlay selector
+  const numCols = state.columns.filter(c => c.type === 'numeric' && c.name !== colName).map(c => c.name);
+  const overlaySel = document.getElementById('overlay-select');
+  overlaySel.innerHTML = `<option value="">None</option>` + numCols.map(c => `<option value="${c}" ${c === state.overlayColumn ? 'selected':''}>${c}</option>`).join('');
+  document.getElementById('overlay-row').style.display = colInfo.type === 'numeric' ? 'flex' : 'none';
+
+  // Map color row
+  document.getElementById('map-color-row').style.display = colInfo.type === 'geo' ? 'block' : 'none';
+
+  // Story angles
+  updateStoryAngles(colName, stats, colInfo.type);
+
   buildChartTabs(colInfo.type);
   renderChart();
 }
@@ -874,6 +1043,7 @@ function setChartType(type) {
     t.classList.toggle('active', t.dataset.type === type)
   );
   document.getElementById('bin-toggle').style.display = type === 'map' ? 'flex' : 'none';
+  document.getElementById('map-color-row').style.display = type === 'map' ? 'block' : 'none';
   updateAxisSelectors();
   renderChart();
 }
@@ -1017,32 +1187,50 @@ function renderChart() {
   } else if (state.chartType === 'area' || state.chartType === 'line' || state.chartType === 'bar') {
     const labelCol = state.columns.find(c => c.type !== 'numeric' && c.type !== 'geo' && c.name !== col)?.name;
     let rows = labelCol
-      ? data.map(r => ({ label: r[labelCol], value: r[col] }))
-      : data.map((r, i) => ({ label: i+1, value: r[col] }));
+      ? data.map(r => ({ label: r[labelCol], value: r[col], overlay: state.overlayColumn ? r[state.overlayColumn] : null }))
+      : data.map((r, i) => ({ label: i+1, value: r[col], overlay: state.overlayColumn ? r[state.overlayColumn] : null }));
     rows = rows.filter(r => r.value != null);
     const lo = stats.q1 - 1.5*stats.iqr, hi = stats.q3 + 1.5*stats.iqr;
     const isOut = v => stats.outliers.length > 0 && (v < lo || v > hi);
     if (!state.showOutliers) rows = rows.filter(r => !isOut(r.value));
     const isArea = state.chartType === 'area';
     const isLine = state.chartType === 'line' || isArea;
-    config = {
-      type: isLine ? 'line' : 'bar',
-      data: {
-        labels: rows.map(r => r.label),
-        datasets: [{
-          label: col,
-          data: rows.map(r => r.value),
-          backgroundColor: isArea ? 'rgba(124,106,247,0.15)' : rows.map(r => isOut(r.value) ? CHART_COLORS.outlier : CHART_COLORS.accent),
-          borderColor: rows.map(r => isOut(r.value) ? CHART_COLORS.outlier : CHART_COLORS.accentBorder),
-          borderWidth: isLine ? 2 : 0,
-          tension: 0.3,
-          fill: isArea,
-          pointBackgroundColor: rows.map(r => isOut(r.value) ? CHART_COLORS.outlier : CHART_COLORS.accentBorder),
-          pointRadius: isLine ? 3 : undefined,
-        }]
-      },
-      options: chartOptions(false, false),
-    };
+
+    const datasets = [{
+      label: col,
+      data: rows.map(r => r.value),
+      backgroundColor: isArea ? 'rgba(124,106,247,0.15)' : rows.map(r => isOut(r.value) ? CHART_COLORS.outlier : CHART_COLORS.accent),
+      borderColor: rows.map(r => isOut(r.value) ? CHART_COLORS.outlier : CHART_COLORS.accentBorder),
+      borderWidth: isLine ? 2 : 0,
+      tension: 0.3, fill: isArea,
+      pointBackgroundColor: rows.map(r => isOut(r.value) ? CHART_COLORS.outlier : CHART_COLORS.accentBorder),
+      pointRadius: isLine ? 3 : undefined,
+      yAxisID: 'y',
+    }];
+
+    const opts = chartOptions(false, false);
+
+    if (state.overlayColumn && rows.some(r => r.overlay != null)) {
+      datasets.push({
+        label: state.overlayColumn,
+        data: rows.map(r => r.overlay),
+        backgroundColor: 'rgba(247,106,143,0.15)',
+        borderColor: 'rgba(247,106,143,0.9)',
+        borderWidth: 2, tension: 0.3,
+        fill: isArea,
+        pointBackgroundColor: 'rgba(247,106,143,0.9)',
+        pointRadius: isLine ? 3 : undefined,
+        type: 'line',
+        yAxisID: 'y2',
+      });
+      opts.scales.y2 = {
+        position: 'right', grid: { drawOnChartArea: false },
+        ticks: { color: 'rgba(247,106,143,0.7)', font: { size: 11 } },
+      };
+      opts.plugins.legend = { display: true, labels: { color: 'var(--text-muted)', font: { size: 11 } } };
+    }
+
+    config = { type: isLine ? 'line' : 'bar', data: { labels: rows.map(r => r.label), datasets }, options: opts };
 
   } else {
     const freq = {};
@@ -1128,7 +1316,7 @@ async function renderMap() {
     if (!values.length) return;
 
     // Color scale
-    const colorInterp = d3.interpolateRdYlBu; // high = red (risk), low = blue
+    const colorInterp = COLOR_SCHEMES[state.colorScheme] || COLOR_SCHEMES.risk;
     let colorScale;
     if (state.binMethod === 'quantile') {
       const q = d3.scaleQuantile().domain(values).range(d3.quantize(t => colorInterp(1 - t), 7));
@@ -1271,11 +1459,247 @@ function goHome() {
   document.getElementById('workspace').style.display = 'none';
   document.getElementById('upload-screen').style.display = 'flex';
   document.getElementById('upload-fab').style.display = 'none';
+  document.getElementById('header-actions').style.display = 'none';
   document.getElementById('file-input').value = '';
 }
 
-function openAiPanel() {
-  alert('AI Insights coming soon — bring your own Claude API key to unlock narrative analysis, story angles, and deeper pattern explanations.');
+// ─── Settings ─────────────────────────────────────────────────────────────────
+function openSettings() {
+  const key = localStorage.getItem('claude_api_key') || '';
+  document.getElementById('api-key-input').value = key;
+  document.getElementById('settings-modal').classList.remove('hidden');
+  updateApiStatus();
+}
+
+function closeSettings() {
+  document.getElementById('settings-modal').classList.add('hidden');
+}
+
+function saveApiKey() {
+  const key = document.getElementById('api-key-input').value.trim();
+  if (key) {
+    localStorage.setItem('claude_api_key', key);
+  } else {
+    localStorage.removeItem('claude_api_key');
+  }
+  updateApiStatus();
+  closeSettings();
+  // Refresh AI button visibility
+  if (state.activeColumn) {
+    document.getElementById('btn-ai-angles').style.display = key ? 'block' : 'none';
+  }
+}
+
+function updateApiStatus() {
+  const key = localStorage.getItem('claude_api_key');
+  const el = document.getElementById('api-status');
+  const text = document.getElementById('api-status-text');
+  if (key) {
+    el.className = 'api-status active';
+    text.textContent = 'API key saved — AI features enabled';
+  } else {
+    el.className = 'api-status inactive';
+    text.textContent = 'No key saved';
+  }
+}
+
+// ─── Overlay ──────────────────────────────────────────────────────────────────
+function setOverlay(col) {
+  state.overlayColumn = col || null;
+  renderChart();
+}
+
+// ─── Map Color Scheme ─────────────────────────────────────────────────────────
+const COLOR_SCHEMES = {
+  risk:    t => d3.interpolateRdYlBu(1 - t),
+  heat:    t => d3.interpolateYlOrRd(t),
+  green:   t => d3.interpolateGreens(t),
+  purple:  t => d3.interpolatePurples(t),
+  diverge: t => d3.interpolateRdBu(1 - t),
+};
+
+function setColorScheme(scheme, el) {
+  state.colorScheme = scheme;
+  document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  renderChart();
+}
+
+// ─── Story Angles ─────────────────────────────────────────────────────────────
+function updateStoryAngles(col, stats, type) {
+  const angles = [];
+  const apiKey = localStorage.getItem('claude_api_key');
+
+  if (type === 'numeric') {
+    const range = stats.max - stats.min;
+    const skew = range > 0 ? (stats.mean - stats.median) / range : 0;
+
+    // Outlier story
+    if (stats.outliers.length > 0) {
+      angles.push({
+        label: 'The Outlier Story',
+        headline: `One value in "${col}" stands dramatically apart`,
+        body: `${stats.outliers.length} data point${stats.outliers.length > 1 ? 's' : ''} fall outside the normal range (max outlier: ${fmt(Math.max(...stats.outliers))}). What happened there?`,
+      });
+    }
+
+    // Gap story
+    if (range > 0) {
+      const ratio = stats.max / (stats.min || 1);
+      if (ratio > 5) {
+        angles.push({
+          label: 'The Gap Story',
+          headline: `A ${Math.round(ratio)}× gap in "${col}"`,
+          body: `The highest value (${fmt(stats.max)}) is ${Math.round(ratio)} times the lowest (${fmt(stats.min)}). Who or what is at the top — and who is at the bottom?`,
+        });
+      }
+    }
+
+    // Skew story
+    if (Math.abs(skew) > 0.15) {
+      angles.push({
+        label: 'The Concentration Story',
+        headline: `Most "${col}" values cluster ${skew > 0 ? 'low' : 'high'}`,
+        body: `The median (${fmt(stats.median)}) is ${skew > 0 ? 'below' : 'above'} the mean (${fmt(stats.mean)}), suggesting ${skew > 0 ? 'a few high values pulling the average up' : 'a few low values pulling it down'}. Who benefits — and who doesn't?`,
+      });
+    }
+
+    // Null story
+    if (stats.nullCount > stats.count * 0.05) {
+      angles.push({
+        label: 'The Missing Data Story',
+        headline: `${Math.round(stats.nullCount / (stats.count + stats.nullCount) * 100)}% of "${col}" is missing`,
+        body: `${stats.nullCount} rows have no value. Is the absence of data itself a story? Who didn't report, and why?`,
+      });
+    }
+  } else if (type === 'categorical') {
+    if (stats.topValues?.length) {
+      const top = stats.topValues[0];
+      const pct = Math.round(top[1] / stats.count * 100);
+      if (pct > 40) {
+        angles.push({
+          label: 'The Dominant Story',
+          headline: `"${top[0]}" dominates "${col}"`,
+          body: `${pct}% of entries are "${top[0]}". Why does one category dominate? What does that tell you about the population?`,
+        });
+      }
+      if (stats.uniqueCount > 10) {
+        angles.push({
+          label: 'The Fragmentation Story',
+          headline: `"${col}" is highly fragmented across ${stats.uniqueCount} categories`,
+          body: `The long tail of categories may hide important subgroups. Is there a grouping or classification that reveals a clearer pattern?`,
+        });
+      }
+    }
+  }
+
+  const container = document.getElementById('story-angles');
+  if (angles.length === 0) {
+    container.innerHTML = `<div style="color:var(--text-dim); font-size:0.8rem; padding:4px 0;">No strong patterns detected algorithmically for this column.</div>`;
+  } else {
+    container.innerHTML = angles.map(a => `
+      <div class="angle-item">
+        <div class="angle-label">${a.label}</div>
+        <div class="angle-headline">${a.headline}</div>
+        <div class="angle-body">${a.body}</div>
+      </div>
+    `).join('');
+  }
+
+  // Show/hide AI angles button
+  const btn = document.getElementById('btn-ai-angles');
+  btn.style.display = (apiKey && type === 'numeric') ? 'block' : 'none';
+  document.getElementById('ai-angles').innerHTML = '';
+}
+
+// ─── AI Story Angles (Claude API) ─────────────────────────────────────────────
+async function generateAIAngles() {
+  const apiKey = localStorage.getItem('claude_api_key');
+  if (!apiKey) { openSettings(); return; }
+
+  const col = state.activeColumn;
+  const colInfo = state.columns.find(c => c.name === col);
+  const stats = getStats(col, state.data, colInfo.type);
+
+  const btn = document.getElementById('btn-ai-angles');
+  btn.disabled = true;
+  btn.textContent = '✦ Generating…';
+
+  // Build compact data summary
+  const summary = {
+    dataset: state.filename,
+    column: col,
+    rows: state.data.length,
+    mean: fmt(stats.mean),
+    median: fmt(stats.median),
+    min: fmt(stats.min),
+    max: fmt(stats.max),
+    outliers: stats.outliers.length,
+    nulls: stats.nullCount,
+    chartType: state.chartType,
+    otherColumns: state.columns.filter(c => c.name !== col).map(c => c.name).slice(0, 10).join(', '),
+  };
+
+  const prompt = `You are a data journalist's assistant. Given this data summary, suggest 3 specific, compelling story angles a journalist could pursue. Each angle should have a punchy headline and 2-3 sentences explaining the angle and what reporting questions it raises.
+
+Dataset: ${summary.dataset}
+Column being explored: "${summary.column}"
+Total rows: ${summary.rows}
+Stats: mean=${summary.mean}, median=${summary.median}, min=${summary.min}, max=${summary.max}
+Outliers: ${summary.outliers}
+Missing values: ${summary.nulls}
+Other columns available: ${summary.otherColumns}
+Current visualization: ${summary.chartType}
+
+Respond with exactly this JSON format (no markdown, just raw JSON):
+[
+  {"headline": "...", "angle": "...", "questions": "..."},
+  {"headline": "...", "angle": "...", "questions": "..."},
+  {"headline": "...", "angle": "...", "questions": "..."}
+]`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 800,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error?.message || 'API error');
+    }
+
+    const data = await res.json();
+    const text = data.content[0].text.trim();
+    const angles = JSON.parse(text);
+
+    document.getElementById('ai-angles').innerHTML = angles.map(a => `
+      <div class="ai-angle-item">
+        <div class="ai-angle-headline">✦ ${a.headline}</div>
+        <div class="ai-angle-body">${a.angle} <em style="color:var(--text-dim)">${a.questions}</em></div>
+      </div>
+    `).join('');
+
+  } catch (err) {
+    document.getElementById('ai-angles').innerHTML = `
+      <div class="insight-item warning">
+        <div class="insight-type">Error</div>
+        ${err.message.includes('401') ? 'Invalid API key — check your key in AI Settings.' : err.message}
+      </div>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✦ Generate AI story angles';
+  }
 }
 </script>
 </body>
