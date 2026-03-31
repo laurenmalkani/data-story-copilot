@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data Story Copilot</title>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@sgratzl/chartjs-chart-boxplot@4.2.4/build/index.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0d0d0f;
+      --surface: #16161a;
+      --surface2: #1e1e24;
+      --surface3: #26262e;
+      --border: #2e2e38;
+      --accent: #7c6af7;
+      --accent2: #f76a8f;
+      --accent3: #6af7c8;
+      --text: #e8e8f0;
+      --text-muted: #7a7a8c;
+      --text-dim: #4a4a5a;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+    }
+
+    .header {
+      padding: 20px 32px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-mark {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+
+    .logo-text { font-size: 15px; font-weight: 600; letter-spacing: -0.02em; }
+    .logo-text span { color: var(--text-muted); font-weight: 400; }
+
+    /* Upload */
+    #upload-screen {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      min-height: calc(100vh - 73px);
+      padding: 40px; gap: 48px;
+    }
+
+    .hero { text-align: center; max-width: 560px; }
+
+    .hero h1 {
+      font-size: 2.8rem; font-weight: 700;
+      letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 16px;
+    }
+
+    .hero h1 .gradient {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+
+    .hero p { color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; }
+
+    .drop-zone {
+      width: 100%; max-width: 500px;
+      border: 2px dashed var(--border); border-radius: 16px;
+      padding: 48px 32px; text-align: center; cursor: pointer;
+      transition: all 0.2s ease; background: var(--surface);
+    }
+
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: var(--accent); background: rgba(124, 106, 247, 0.05);
+    }
+
+    .drop-zone.dragover { transform: scale(1.01); }
+    .drop-icon { font-size: 2.5rem; margin-bottom: 16px; opacity: 0.6; }
+    .drop-zone h3 { font-size: 1rem; font-weight: 600; margin-bottom: 8px; }
+    .drop-zone p { color: var(--text-muted); font-size: 0.875rem; margin-bottom: 20px; }
+
+    .btn-upload {
+      background: var(--accent); color: white; border: none;
+      padding: 10px 20px; border-radius: 8px;
+      font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: opacity 0.15s;
+    }
+    .btn-upload:hover { opacity: 0.85; }
+
+    .sample-datasets {
+      display: flex; gap: 10px; flex-wrap: wrap;
+      justify-content: center; max-width: 500px;
+    }
+
+    .sample-label {
+      width: 100%; text-align: center;
+      font-size: 0.75rem; color: var(--text-dim);
+      text-transform: uppercase; letter-spacing: 0.08em;
+    }
+
+    .sample-chip {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 20px; padding: 6px 14px;
+      font-size: 0.8rem; color: var(--text-muted); cursor: pointer; transition: all 0.15s;
+    }
+    .sample-chip:hover { border-color: var(--accent); color: var(--text); }
+
+    /* Workspace */
+    #workspace { display: none; height: calc(100vh - 73px); overflow: hidden; }
+
+    .workspace-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr 300px;
+      height: 100%;
+    }
+
+    /* Sidebar shared */
+    .sidebar-left, .sidebar-right {
+      overflow-y: auto; padding: 20px;
+      display: flex; flex-direction: column; gap: 20px;
+    }
+    .sidebar-left { border-right: 1px solid var(--border); }
+    .sidebar-right { border-left: 1px solid var(--border); }
+
+    .sidebar-section-label {
+      font-size: 0.7rem; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--text-dim); margin-bottom: 10px;
+    }
+
+    .file-info { background: var(--surface2); border-radius: 10px; padding: 14px; }
+
+    .file-info .filename {
+      font-size: 0.875rem; font-weight: 600; margin-bottom: 6px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .file-meta { display: flex; gap: 12px; }
+    .file-meta span { font-size: 0.75rem; color: var(--text-muted); }
+    .file-meta strong { color: var(--text); }
+
+    .column-list { display: flex; flex-direction: column; gap: 6px; }
+
+    .column-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 8px; cursor: pointer;
+      transition: background 0.15s; border: 1px solid transparent;
+    }
+    .column-item:hover { background: var(--surface2); }
+    .column-item.active {
+      background: rgba(124, 106, 247, 0.1);
+      border-color: rgba(124, 106, 247, 0.3);
+    }
+    .column-item.geo-col { border-color: rgba(106, 247, 200, 0.2); }
+
+    .col-type-badge {
+      font-size: 0.65rem; font-weight: 700; padding: 2px 6px;
+      border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em; flex-shrink: 0;
+    }
+    .type-numeric { background: rgba(106, 247, 200, 0.15); color: var(--accent3); }
+    .type-categorical { background: rgba(247, 106, 143, 0.15); color: var(--accent2); }
+    .type-date { background: rgba(124, 106, 247, 0.15); color: var(--accent); }
+    .type-geo { background: rgba(106, 247, 200, 0.2); color: var(--accent3); }
+
+    .col-name { font-size: 0.8rem; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* Chart area */
+    .chart-area { display: flex; flex-direction: column; overflow: hidden; }
+
+    .chart-toolbar {
+      padding: 14px 20px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+
+    .toolbar-label {
+      font-size: 0.75rem; color: var(--text-dim);
+      text-transform: uppercase; letter-spacing: 0.08em;
+    }
+
+    .chart-type-tabs { display: flex; gap: 4px; }
+
+    .chart-tab {
+      background: none; border: 1px solid var(--border); border-radius: 7px;
+      padding: 6px 12px; font-size: 0.8rem; color: var(--text-muted);
+      cursor: pointer; transition: all 0.15s;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .chart-tab:hover { border-color: var(--accent); color: var(--text); }
+    .chart-tab.active { background: rgba(124, 106, 247, 0.15); border-color: var(--accent); color: var(--accent); }
+    .chart-tab.recommended::after { content: '★'; font-size: 0.6rem; color: var(--accent3); }
+
+    .axis-selectors { display: flex; gap: 8px; align-items: center; margin-left: auto; }
+
+    .axis-select {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 7px; padding: 6px 10px;
+      font-size: 0.8rem; color: var(--text); cursor: pointer; outline: none;
+    }
+    .axis-select:focus { border-color: var(--accent); }
+
+    .axis-label { font-size: 0.75rem; color: var(--text-dim); }
+
+    .chart-canvas-wrap {
+      flex: 1; padding: 24px; position: relative; overflow: hidden;
+    }
+    .chart-canvas-wrap canvas { max-height: 100%; }
+
+    .chart-placeholder {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      height: 100%; gap: 12px; color: var(--text-dim);
+    }
+    .chart-placeholder .icon { font-size: 3rem; opacity: 0.4; }
+    .chart-placeholder p { font-size: 0.9rem; }
+
+    /* Map */
+    #map-container {
+      width: 100%; height: 100%; position: relative;
+    }
+
+    #map-container svg { display: block; }
+
+    .map-tooltip {
+      position: fixed; pointer-events: none;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 13px;
+      font-size: 0.78rem; line-height: 1.5;
+      z-index: 100; opacity: 0; transition: opacity 0.1s;
+      max-width: 200px;
+    }
+    .map-tooltip .tt-name { font-weight: 600; margin-bottom: 3px; color: var(--text); }
+    .map-tooltip .tt-value { color: var(--text-muted); }
+    .map-tooltip .tt-value strong { color: var(--accent3); }
+
+    .map-legend {
+      position: absolute; bottom: 20px; left: 24px;
+      background: rgba(13,13,15,0.85); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 14px; font-size: 0.72rem;
+    }
+    .map-legend-label { color: var(--text-muted); margin-bottom: 6px; }
+    .map-legend-bar { width: 160px; height: 8px; border-radius: 4px; margin-bottom: 4px; }
+    .map-legend-range { display: flex; justify-content: space-between; color: var(--text-dim); }
+
+    .map-coverage {
+      position: absolute; top: 16px; right: 16px;
+      background: rgba(13,13,15,0.85); border: 1px solid var(--border);
+      border-radius: 8px; padding: 8px 12px; font-size: 0.72rem; color: var(--text-muted);
+    }
+    .map-coverage strong { color: var(--text); }
+
+    .map-loading {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      height: 100%; gap: 12px; color: var(--text-dim);
+    }
+    .map-loading p { font-size: 0.85rem; }
+
+    .spinner {
+      width: 24px; height: 24px;
+      border: 2px solid var(--surface3);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Binning toggle */
+    .bin-toggle { display: flex; gap: 4px; }
+    .bin-btn {
+      background: none; border: 1px solid var(--border); border-radius: 6px;
+      padding: 4px 9px; font-size: 0.73rem; color: var(--text-muted);
+      cursor: pointer; transition: all 0.15s;
+    }
+    .bin-btn:hover { border-color: var(--accent); color: var(--text); }
+    .bin-btn.active { background: rgba(124,106,247,0.15); border-color: var(--accent); color: var(--accent); }
+
+    /* Right sidebar */
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    .stat-card { background: var(--surface2); border-radius: 8px; padding: 12px; }
+    .stat-card .label {
+      font-size: 0.7rem; color: var(--text-dim);
+      text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px;
+    }
+    .stat-card .value { font-size: 1.1rem; font-weight: 600; letter-spacing: -0.02em; }
+
+    .insight-list { display: flex; flex-direction: column; gap: 8px; }
+
+    .insight-item {
+      background: var(--surface2); border-radius: 8px; padding: 12px;
+      font-size: 0.8rem; line-height: 1.5; border-left: 3px solid transparent;
+    }
+    .insight-item.warning { border-left-color: #f7a86a; }
+    .insight-item.info { border-left-color: var(--accent); }
+    .insight-item.good { border-left-color: var(--accent3); }
+
+    .insight-type {
+      font-size: 0.65rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; color: var(--text-dim);
+    }
+    .insight-item.warning .insight-type { color: #f7a86a; }
+    .insight-item.info .insight-type { color: var(--accent); }
+    .insight-item.good .insight-type { color: var(--accent3); }
+
+    .toggle-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 12px; background: var(--surface2); border-radius: 8px;
+    }
+    .toggle-row label { font-size: 0.8rem; color: var(--text-muted); }
+
+    .toggle {
+      width: 36px; height: 20px; background: var(--surface3);
+      border-radius: 10px; position: relative; cursor: pointer;
+      border: 1px solid var(--border); transition: background 0.2s;
+    }
+    .toggle.on { background: var(--accent); border-color: var(--accent); }
+    .toggle::after {
+      content: ''; position: absolute;
+      width: 14px; height: 14px; background: white; border-radius: 50%;
+      top: 2px; left: 2px; transition: transform 0.2s;
+    }
+    .toggle.on::after { transform: translateX(16px); }
+
+    .ai-section {
+      background: linear-gradient(135deg, rgba(124,106,247,0.08), rgba(247,106,143,0.05));
+      border: 1px solid rgba(124,106,247,0.2);
+      border-radius: 10px; padding: 16px;
+    }
+    .ai-section h4 { font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    .ai-badge {
+      font-size: 0.6rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: white; padding: 2px 6px; border-radius: 4px;
+      font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .ai-section p { font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 12px; }
+    .btn-ai {
+      width: 100%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: white; border: none; padding: 10px; border-radius: 8px;
+      font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: opacity 0.15s;
+    }
+    .btn-ai:hover { opacity: 0.85; }
+
+    .geo-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(106,247,200,0.1); border: 1px solid rgba(106,247,200,0.25);
+      border-radius: 6px; padding: 4px 8px;
+      font-size: 0.72rem; color: var(--accent3); margin-left: auto;
+    }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 2px; }
+
+    #file-input { display: none; }
+  </style>
+</head>
+<body>
+
+<div class="map-tooltip" id="map-tooltip">
+  <div class="tt-name" id="tt-name"></div>
+  <div class="tt-value" id="tt-value"></div>
+</div>
+
+<header class="header">
+  <div class="logo-mark" onclick="goHome()" style="cursor:pointer">◈</div>
+  <div class="logo-text" onclick="goHome()" style="cursor:pointer">data story <span>copilot</span></div>
+</header>
+
+<div id="upload-screen">
+  <div class="hero">
+    <h1>See what your<br><span class="gradient">data is telling you</span></h1>
+    <p>Upload a CSV and instantly explore patterns, outliers, and visualization options. A research tool for data storytellers.</p>
+  </div>
+
+  <div class="drop-zone" id="drop-zone">
+    <div class="drop-icon">⬡</div>
+    <h3>Drop your CSV here</h3>
+    <p>or click to browse your files</p>
+    <button class="btn-upload" onclick="document.getElementById('file-input').click()">Choose file</button>
+    <input type="file" id="file-input" accept=".csv" />
+  </div>
+
+  <div class="sample-datasets">
+    <span class="sample-label">Try a sample dataset</span>
+    <span class="sample-chip" onclick="loadSample('weather')">🌡 Weather trends</span>
+    <span class="sample-chip" onclick="loadSample('elections')">🗳 Election results</span>
+    <span class="sample-chip" onclick="loadSample('climate')">🌎 Climate risk by state</span>
+  </div>
+</div>
+
+<div id="workspace">
+  <div class="workspace-layout">
+
+    <aside class="sidebar-left">
+      <div>
+        <div class="sidebar-section-label">Dataset</div>
+        <div class="file-info" id="file-info">
+          <div class="filename" id="filename">—</div>
+          <div class="file-meta">
+            <span><strong id="row-count">—</strong> rows</span>
+            <span><strong id="col-count">—</strong> cols</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="sidebar-section-label">Columns</div>
+        <div class="column-list" id="column-list"></div>
+      </div>
+    </aside>
+
+    <main class="chart-area">
+      <div class="chart-toolbar">
+        <span class="toolbar-label">Chart</span>
+        <div class="chart-type-tabs" id="chart-tabs"></div>
+        <div class="axis-selectors" id="axis-selectors" style="display:none">
+          <span class="axis-label" id="axis-label-x">X</span>
+          <select class="axis-select" id="x-select" onchange="onAxisChange()"></select>
+          <span class="axis-label" id="axis-label-y" style="display:none">Y</span>
+          <select class="axis-select" id="y-select" onchange="onAxisChange()" style="display:none"></select>
+          <span class="axis-label" id="axis-label-size" style="display:none">Size</span>
+          <select class="axis-select" id="size-select" onchange="onAxisChange()" style="display:none"></select>
+        </div>
+        <div class="bin-toggle" id="bin-toggle" style="display:none">
+          <span class="axis-label" style="margin-right:4px">Scale</span>
+          <button class="bin-btn active" onclick="setBinMethod('quantile', this)">Quantile</button>
+          <button class="bin-btn" onclick="setBinMethod('equal', this)">Equal</button>
+        </div>
+      </div>
+      <div class="chart-canvas-wrap" id="chart-wrap">
+        <div class="chart-placeholder">
+          <div class="icon">◈</div>
+          <p>Select a column to explore</p>
+        </div>
+      </div>
+    </main>
+
+    <aside class="sidebar-right">
+      <div>
+        <div class="sidebar-section-label">Statistics</div>
+        <div class="stat-grid" id="stat-grid">
+          <div style="grid-column:1/-1; color:var(--text-dim); font-size:0.8rem; padding:8px 0;">Select a column to see stats</div>
+        </div>
+      </div>
+      <div>
+        <div class="sidebar-section-label">Observations</div>
+        <div class="insight-list" id="insight-list">
+          <div style="color:var(--text-dim); font-size:0.8rem; padding:8px 0;">Insights will appear here</div>
+        </div>
+      </div>
+      <div>
+        <div class="sidebar-section-label">Options</div>
+        <div class="toggle-row" id="outlier-toggle-row" style="display:none">
+          <label>Show outliers</label>
+          <div class="toggle on" id="outlier-toggle" onclick="toggleOutliers()"></div>
+        </div>
+      </div>
+      <div class="ai-section">
+        <h4>✦ AI Insights <span class="ai-badge">Beta</span></h4>
+        <p>Unlock narrative analysis, story angles, and deeper pattern explanations powered by Claude.</p>
+        <button class="btn-ai" onclick="openAiPanel()">Enable AI layer →</button>
+      </div>
+    </aside>
+
+  </div>
+</div>
+
+<div id="upload-fab" style="display:none; position:fixed; bottom:24px; right:24px; z-index:50;">
+  <label for="fab-file-input" style="
+    display:flex; align-items:center; gap:8px;
+    background:var(--surface2); border:1px solid var(--border);
+    border-radius:10px; padding:10px 16px;
+    font-size:0.8rem; color:var(--text-muted);
+    cursor:pointer; transition:all 0.15s;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  " onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--text)'"
+     onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
+    ⬡ Upload new dataset
+  </label>
+  <input type="file" id="fab-file-input" accept=".csv" style="display:none" />
+</div>
+
+<script>
+// ─── State ────────────────────────────────────────────────────────────────────
+let state = {
+  data: null,
+  columns: [],
+  activeColumn: null,
+  activeXCol: null,
+  activeYCol: null,
+  activeSizeCol: null,
+  chartType: 'bar',
+  showOutliers: true,
+  filename: '',
+  geoColumn: null,       // detected FIPS/geo column name
+  mapValueCol: null,     // which numeric col to color map by
+  binMethod: 'quantile', // quantile | equal
+};
+let chart = null;
+let topoCache = null;
+let countyNameCache = null;
+
+// ─── Sample Data ──────────────────────────────────────────────────────────────
+const SAMPLES = {
+  weather: {
+    name: 'weather_trends.csv',
+    csv: `month,avg_temp_f,rainfall_in,sunny_days,humidity_pct
+Jan,32,3.2,8,72
+Feb,35,2.8,10,68
+Mar,48,3.5,12,65
+Apr,58,4.1,14,62
+May,68,3.8,18,58
+Jun,78,2.9,22,55
+Jul,85,2.1,26,52
+Aug,83,2.4,24,54
+Sep,74,3.0,20,57
+Oct,62,3.6,16,63
+Nov,48,3.9,10,69
+Dec,36,3.3,7,73`
+  },
+  elections: {
+    name: 'election_results.csv',
+    csv: `county,candidate_a_pct,candidate_b_pct,turnout_pct,median_income,urban_index
+Adams,62,36,71,54000,3
+Baker,41,57,68,72000,7
+Carroll,55,43,74,48000,2
+Davis,38,60,65,89000,9
+Ellis,71,27,58,38000,1
+Franklin,44,54,72,81000,8
+Grant,68,30,61,42000,2
+Hayes,49,49,77,67000,5
+Irving,35,63,70,94000,10
+Jackson,73,25,55,35000,1`
+  },
+  climate: {
+    name: 'climate_risk_by_state.csv',
+    csv: `state,fips,risk_score,flood_risk,wildfire_risk,heat_risk,storm_risk,population_millions
+Alabama,01,52.3,48,12,61,72,5.0
+Alaska,02,31.2,28,45,22,38,0.7
+Arizona,04,58.7,18,78,82,31,7.3
+Arkansas,05,49.1,55,22,58,68,3.0
+California,06,71.4,42,91,79,44,39.5
+Colorado,08,54.8,31,82,51,47,5.8
+Connecticut,09,38.2,52,8,41,55,3.6
+Delaware,10,44.1,61,5,48,62,1.0
+Florida,12,81.3,88,34,91,95,21.5
+Georgia,13,59.2,51,28,68,71,10.7
+Hawaii,15,42.3,35,58,71,44,1.4
+Idaho,16,41.7,22,72,38,28,1.9
+Illinois,17,47.3,58,8,52,61,12.6
+Indiana,18,43.8,54,5,49,58,6.8
+Iowa,19,46.2,61,4,52,64,3.2
+Kansas,20,55.1,38,19,62,78,2.9
+Kentucky,21,51.4,62,12,58,65,4.5
+Louisiana,22,76.8,91,12,81,88,4.6
+Maine,23,29.8,31,18,22,42,1.4
+Maryland,24,48.3,62,9,52,58,6.2
+Massachusetts,25,36.4,48,6,38,51,6.9
+Michigan,26,38.7,42,8,35,48,10.0
+Minnesota,27,36.2,38,15,31,45,5.7
+Mississippi,28,62.4,71,11,72,81,3.0
+Missouri,29,52.8,62,8,58,72,6.2
+Montana,30,39.1,21,78,31,32,1.1
+Nebraska,31,49.3,41,14,58,72,2.0
+Nevada,32,52.4,12,71,82,22,3.1
+New Hampshire,33,28.7,28,12,25,38,1.4
+New Jersey,34,44.8,65,6,49,62,9.3
+New Mexico,35,55.2,22,81,72,38,2.1
+New York,36,41.3,55,7,42,54,19.8
+North Carolina,37,56.8,58,22,62,74,10.4
+North Dakota,38,38.4,44,8,41,55,0.8
+Ohio,39,41.2,51,4,44,55,11.8
+Oklahoma,40,62.1,51,38,72,88,4.0
+Oregon,41,49.3,32,82,42,38,4.2
+Pennsylvania,42,40.8,52,7,43,54,13.0
+Rhode Island,44,32.1,45,4,35,48,1.1
+South Carolina,45,62.7,64,28,71,78,5.1
+South Dakota,46,41.8,38,12,48,62,0.9
+Tennessee,47,55.3,58,18,64,71,6.9
+Texas,48,72.4,62,58,88,91,29.1
+Utah,49,44.8,18,72,61,28,3.3
+Vermont,50,27.3,28,11,22,35,0.6
+Virginia,51,49.8,52,16,54,62,8.6
+Washington,53,46.2,31,68,41,38,7.7
+West Virginia,54,44.3,58,12,49,58,1.8
+Wisconsin,55,34.8,38,8,31,44,5.9
+Wyoming,56,37.2,18,62,35,42,0.6`
+  }
+};
+
+function loadSample(key) {
+  const s = SAMPLES[key];
+  const result = Papa.parse(s.csv.trim(), { header: true, dynamicTyping: true, skipEmptyLines: true });
+  processData(result.data, s.name);
+}
+
+// ─── File Upload ──────────────────────────────────────────────────────────────
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file) parseFile(file);
+});
+dropZone.addEventListener('click', e => {
+  if (!e.target.classList.contains('btn-upload')) fileInput.click();
+});
+fileInput.addEventListener('change', e => { if (e.target.files[0]) parseFile(e.target.files[0]); });
+document.getElementById('fab-file-input').addEventListener('change', e => { if (e.target.files[0]) parseFile(e.target.files[0]); });
+
+function parseFile(file) {
+  Papa.parse(file, {
+    header: true, dynamicTyping: true, skipEmptyLines: true,
+    complete: r => processData(r.data, file.name),
+  });
+}
+
+// ─── Column Type Detection ────────────────────────────────────────────────────
+const GEO_PATTERNS = /^(fips|county_fips|stcofips|geoid|geo_id|state_fips|countyfips|county_code|statefp|countyfp)$/i;
+const STATE_FIPS_COL = /^(state_fips|statefips|state_code|fips)$/i;
+const FIPS_VALUE = v => {
+  const s = String(v).trim();
+  return /^\d{2,5}$/.test(s) && parseInt(s) <= 99999;
+};
+
+function detectColumnType(col, data) {
+  const vals = data.map(r => r[col]).filter(v => v != null && v !== '');
+  // Geo detection: name match + value looks like FIPS
+  if (GEO_PATTERNS.test(col) && vals.slice(0, 10).some(FIPS_VALUE)) return 'geo';
+  const numCount = vals.filter(v => typeof v === 'number' && !isNaN(v)).length;
+  const dateCount = vals.filter(v => typeof v === 'string' && /^\d{4}[-\/]|^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i.test(v)).length;
+  if (numCount / vals.length > 0.8) return 'numeric';
+  if (dateCount / vals.length > 0.6) return 'date';
+  return 'categorical';
+}
+
+function detectGeoColumn(columns) {
+  return columns.find(c => c.type === 'geo') || null;
+}
+
+// ─── Stats ────────────────────────────────────────────────────────────────────
+function getStats(col, data, type) {
+  const vals = data.map(r => r[col]).filter(v => v != null && v !== '');
+  if (type === 'numeric' || type === 'geo') {
+    const nums = vals.map(Number).filter(n => !isNaN(n)).sort((a, b) => a - b);
+    if (!nums.length) return { count: 0, nullCount: data.length };
+    const mean = nums.reduce((a, b) => a + b, 0) / nums.length;
+    const median = nums.length % 2 === 0
+      ? (nums[nums.length/2-1] + nums[nums.length/2]) / 2
+      : nums[Math.floor(nums.length/2)];
+    const q1 = nums[Math.floor(nums.length*0.25)];
+    const q3 = nums[Math.floor(nums.length*0.75)];
+    const iqr = q3 - q1;
+    const outliers = nums.filter(v => v < q1 - 1.5*iqr || v > q3 + 1.5*iqr);
+    return { mean, median, min: nums[0], max: nums[nums.length-1], q1, q3, iqr, outliers, nullCount: data.length - vals.length, count: nums.length };
+  } else {
+    const freq = {};
+    vals.forEach(v => freq[v] = (freq[v]||0)+1);
+    const sorted = Object.entries(freq).sort((a,b) => b[1]-a[1]);
+    return { uniqueCount: sorted.length, topValues: sorted.slice(0,5), nullCount: data.length - vals.length, count: vals.length };
+  }
+}
+
+function fmt(n) {
+  if (n == null || isNaN(n)) return '—';
+  if (Math.abs(n) >= 1000000) return (n/1000000).toFixed(1) + 'M';
+  if (Math.abs(n) >= 1000) return (n/1000).toFixed(1) + 'K';
+  return Number(n.toFixed(2)).toString();
+}
+
+// ─── Insights ─────────────────────────────────────────────────────────────────
+function getInsights(col, stats, type) {
+  const insights = [];
+  if (type === 'numeric') {
+    const skew = stats.max !== stats.min ? (stats.mean - stats.median) / (stats.max - stats.min) : 0;
+    if (Math.abs(skew) > 0.1) {
+      insights.push({ kind: 'warning', label: 'Skewed distribution', text: `Mean (${fmt(stats.mean)}) and median (${fmt(stats.median)}) differ — data is ${skew > 0 ? 'right' : 'left'}-skewed. Bar charts may mislead; consider a histogram.` });
+    }
+    if (stats.outliers.length > 0) {
+      insights.push({ kind: 'warning', label: `${stats.outliers.length} outlier${stats.outliers.length > 1 ? 's' : ''} detected`, text: `Values beyond 1.5× IQR: ${stats.outliers.slice(0,4).map(fmt).join(', ')}${stats.outliers.length > 4 ? '…' : ''}. Toggle outliers off to see the core distribution.` });
+    }
+    if (stats.nullCount > 0) {
+      insights.push({ kind: 'info', label: 'Missing values', text: `${stats.nullCount} row${stats.nullCount>1?'s':''} (${Math.round(stats.nullCount/stats.count*100)}%) have no value for this column.` });
+    }
+    if (stats.max / (stats.min || 1) > 100) {
+      insights.push({ kind: 'info', label: 'Wide value range', text: `Values span ${fmt(stats.min)} to ${fmt(stats.max)}. A log scale may reveal patterns that a linear scale hides.` });
+    }
+    if (insights.length === 0) {
+      insights.push({ kind: 'good', label: 'Clean distribution', text: `No major outliers or skew detected. This column visualizes well as-is.` });
+    }
+  } else if (type === 'geo') {
+    insights.push({ kind: 'info', label: 'Geographic column', text: `Detected as a geographic ID (FIPS). Select a numeric column and switch to Map view to see values on a choropleth map.` });
+  } else {
+    if (stats.uniqueCount > 15) {
+      insights.push({ kind: 'warning', label: 'Many categories', text: `${stats.uniqueCount} unique values — a bar chart will be crowded. Consider filtering to top N.` });
+    }
+    if (stats.nullCount > 0) {
+      insights.push({ kind: 'info', label: 'Missing values', text: `${stats.nullCount} rows have no value for this column.` });
+    }
+    if (stats.topValues?.length) {
+      insights.push({ kind: 'info', label: 'Top value', text: `"${stats.topValues[0][0]}" appears most (${stats.topValues[0][1]} times, ${Math.round(stats.topValues[0][1]/stats.count*100)}%).` });
+    }
+  }
+  return insights;
+}
+
+// ─── Data Processing ──────────────────────────────────────────────────────────
+function processData(data, filename) {
+  state.data = data;
+  state.filename = filename;
+  state.columns = Object.keys(data[0]).map(col => ({
+    name: col,
+    type: detectColumnType(col, data),
+  }));
+
+  const geoCol = detectGeoColumn(state.columns);
+  state.geoColumn = geoCol ? geoCol.name : null;
+
+  document.getElementById('upload-screen').style.display = 'none';
+  document.getElementById('workspace').style.display = 'block';
+  document.getElementById('upload-fab').style.display = 'block';
+  document.getElementById('filename').textContent = filename;
+  document.getElementById('row-count').textContent = data.length.toLocaleString();
+  document.getElementById('col-count').textContent = state.columns.length;
+
+  const list = document.getElementById('column-list');
+  list.innerHTML = '';
+  state.columns.forEach(col => {
+    const el = document.createElement('div');
+    el.className = `column-item${col.type === 'geo' ? ' geo-col' : ''}`;
+    el.dataset.col = col.name;
+    const typeLabel = col.type === 'geo' ? 'GEO' : col.type === 'numeric' ? 'NUM' : col.type === 'date' ? 'DATE' : 'CAT';
+    el.innerHTML = `
+      <span class="col-type-badge type-${col.type === 'geo' ? 'geo' : col.type}">${typeLabel}</span>
+      <span class="col-name">${col.name}</span>
+    `;
+    el.addEventListener('click', () => selectColumn(col.name));
+    list.appendChild(el);
+  });
+
+  const firstNum = state.columns.find(c => c.type === 'numeric');
+  if (firstNum) selectColumn(firstNum.name);
+  else if (state.columns.length) selectColumn(state.columns[0].name);
+}
+
+// ─── Column Selection ─────────────────────────────────────────────────────────
+function selectColumn(colName) {
+  state.activeColumn = colName;
+  const colInfo = state.columns.find(c => c.name === colName);
+  const stats = getStats(colName, state.data, colInfo.type);
+
+  document.querySelectorAll('.column-item').forEach(el =>
+    el.classList.toggle('active', el.dataset.col === colName)
+  );
+
+  // Stats panel
+  const grid = document.getElementById('stat-grid');
+  if (colInfo.type === 'numeric') {
+    grid.innerHTML = `
+      <div class="stat-card"><div class="label">Mean</div><div class="value">${fmt(stats.mean)}</div></div>
+      <div class="stat-card"><div class="label">Median</div><div class="value">${fmt(stats.median)}</div></div>
+      <div class="stat-card"><div class="label">Min</div><div class="value">${fmt(stats.min)}</div></div>
+      <div class="stat-card"><div class="label">Max</div><div class="value">${fmt(stats.max)}</div></div>
+      <div class="stat-card"><div class="label">Outliers</div><div class="value" style="color:${stats.outliers.length > 0 ? '#f7a86a' : 'var(--accent3)'}">${stats.outliers.length}</div></div>
+      <div class="stat-card"><div class="label">Nulls</div><div class="value" style="color:${stats.nullCount > 0 ? '#f7a86a' : 'var(--text-muted)'}">${stats.nullCount}</div></div>
+    `;
+    document.getElementById('outlier-toggle-row').style.display = stats.outliers.length > 0 ? 'flex' : 'none';
+  } else if (colInfo.type === 'geo') {
+    grid.innerHTML = `
+      <div class="stat-card"><div class="label">Geo IDs</div><div class="value">${stats.count}</div></div>
+      <div class="stat-card"><div class="label">Unique</div><div class="value">${stats.uniqueCount || stats.count}</div></div>
+    `;
+    document.getElementById('outlier-toggle-row').style.display = 'none';
+  } else {
+    grid.innerHTML = `
+      <div class="stat-card"><div class="label">Unique</div><div class="value">${stats.uniqueCount}</div></div>
+      <div class="stat-card"><div class="label">Count</div><div class="value">${stats.count}</div></div>
+      <div class="stat-card" style="grid-column:1/-1"><div class="label">Top values</div>
+        <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:5px;">
+          ${stats.topValues.map(([v,c]) => `<span style="background:var(--surface3);border-radius:4px;padding:3px 7px;font-size:0.72rem;color:var(--text-muted)">${v} <strong style="color:var(--text)">${c}</strong></span>`).join('')}
+        </div>
+      </div>
+      <div class="stat-card"><div class="label">Nulls</div><div class="value">${stats.nullCount}</div></div>
+    `;
+    document.getElementById('outlier-toggle-row').style.display = 'none';
+  }
+
+  // Insights
+  const insights = getInsights(colName, stats, colInfo.type);
+  document.getElementById('insight-list').innerHTML = insights.map(i => `
+    <div class="insight-item ${i.kind}">
+      <div class="insight-type">${i.label}</div>${i.text}
+    </div>
+  `).join('');
+
+  buildChartTabs(colInfo.type);
+  renderChart();
+}
+
+// ─── Chart Tabs ───────────────────────────────────────────────────────────────
+function buildChartTabs(type) {
+  const tabs = document.getElementById('chart-tabs');
+  const axisSel = document.getElementById('axis-selectors');
+  const binToggle = document.getElementById('bin-toggle');
+  const hasGeo = !!state.geoColumn;
+
+  let options = [];
+
+  if (type === 'numeric') {
+    options = [
+      { id: 'bar',       label: '▬ Bar',       recommended: true },
+      { id: 'histogram', label: '⬛ Histogram',  recommended: true },
+      { id: 'line',      label: '↗ Line' },
+      { id: 'area',      label: '◼ Area' },
+      { id: 'boxplot',   label: '◫ Box Plot',   recommended: true },
+      { id: 'scatter',   label: '⬡ Scatter',    recommended: true },
+      { id: 'bubble',    label: '◉ Bubble' },
+    ];
+    if (hasGeo) options.push({ id: 'map', label: '◎ Map', recommended: true });
+
+    const numCols = state.columns.filter(c => c.type === 'numeric').map(c => c.name);
+    const catCols = state.columns.filter(c => c.type === 'categorical' || c.type === 'date').map(c => c.name);
+    const xSel = document.getElementById('x-select');
+    const ySel = document.getElementById('y-select');
+    const sizeSel = document.getElementById('size-select');
+    xSel.innerHTML = [...catCols, ...numCols].map(c => `<option value="${c}" ${c === state.activeColumn ? 'selected':''}>${c}</option>`).join('');
+    ySel.innerHTML = numCols.map(c => `<option value="${c}" ${c === state.activeColumn ? 'selected':''}>${c}</option>`).join('');
+    sizeSel.innerHTML = numCols.map(c => `<option value="${c}">${c}</option>`).join('');
+    state.activeXCol = xSel.value;
+    state.activeYCol = ySel.value;
+    state.activeSizeCol = sizeSel.value;
+
+  } else if (type === 'geo') {
+    options = [{ id: 'map', label: '◎ Map', recommended: true }];
+    state.chartType = 'map';
+  } else {
+    options = [
+      { id: 'bar', label: '▬ Bar', recommended: true },
+      { id: 'pie', label: '◔ Pie' },
+    ];
+    if (hasGeo) options.push({ id: 'map', label: '◎ Map' });
+  }
+
+  // Ensure active chart type is valid
+  if (!options.find(o => o.id === state.chartType)) {
+    state.chartType = options[0].id;
+  }
+
+  tabs.innerHTML = options.map(o => `
+    <button class="chart-tab ${o.id === state.chartType ? 'active' : ''} ${o.recommended ? 'recommended' : ''}"
+      data-type="${o.id}" onclick="setChartType('${o.id}')">${o.label}</button>
+  `).join('');
+
+  updateAxisSelectors();
+}
+
+function setChartType(type) {
+  state.chartType = type;
+  document.querySelectorAll('.chart-tab').forEach(t =>
+    t.classList.toggle('active', t.dataset.type === type)
+  );
+  document.getElementById('bin-toggle').style.display = type === 'map' ? 'flex' : 'none';
+  updateAxisSelectors();
+  renderChart();
+}
+
+function updateAxisSelectors() {
+  const t = state.chartType;
+  const axisSel = document.getElementById('axis-selectors');
+  const showY = t === 'scatter' || t === 'bubble';
+  const showSize = t === 'bubble';
+  const showX = t === 'scatter' || t === 'bubble' || t === 'map';
+
+  axisSel.style.display = showX ? 'flex' : 'none';
+
+  const lx = document.getElementById('axis-label-x');
+  const ly = document.getElementById('axis-label-y');
+  const ls = document.getElementById('axis-label-size');
+  const ys = document.getElementById('y-select');
+  const ss = document.getElementById('size-select');
+
+  lx.textContent = t === 'map' ? 'Color by' : 'X';
+  ly.style.display = showY ? '' : 'none';
+  ys.style.display = showY ? '' : 'none';
+  ls.style.display = showSize ? '' : 'none';
+  ss.style.display = showSize ? '' : 'none';
+
+  if (t === 'map' && state.geoColumn) {
+    const numCols = state.columns.filter(c => c.type === 'numeric').map(c => c.name);
+    const xSel = document.getElementById('x-select');
+    xSel.innerHTML = numCols.map(c => `<option value="${c}" ${c === state.activeColumn ? 'selected':''}>${c}</option>`).join('');
+    state.mapValueCol = xSel.value;
+  }
+}
+
+function onAxisChange() {
+  if (state.chartType === 'map') {
+    state.mapValueCol = document.getElementById('x-select').value;
+  } else {
+    state.activeXCol = document.getElementById('x-select').value;
+    state.activeYCol = document.getElementById('y-select').value;
+    state.activeSizeCol = document.getElementById('size-select').value;
+  }
+  renderChart();
+}
+
+function setBinMethod(method, btn) {
+  state.binMethod = method;
+  document.querySelectorAll('.bin-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderChart();
+}
+
+// ─── Chart Rendering ──────────────────────────────────────────────────────────
+const CHART_COLORS = {
+  accent: 'rgba(124,106,247,0.85)',
+  accentBorder: 'rgba(124,106,247,1)',
+  outlier: 'rgba(247,168,106,0.9)',
+};
+const MULTI_COLORS = [
+  'rgba(124,106,247,0.85)','rgba(247,106,143,0.85)','rgba(106,247,200,0.85)',
+  'rgba(247,200,106,0.85)','rgba(106,180,247,0.85)','rgba(247,106,200,0.85)',
+];
+
+function renderChart() {
+  if (state.chartType === 'map') {
+    renderMap();
+    return;
+  }
+
+  const wrap = document.getElementById('chart-wrap');
+  if (chart) { chart.destroy(); chart = null; }
+  wrap.innerHTML = '<canvas id="main-chart"></canvas>';
+  const canvas = document.getElementById('main-chart');
+
+  const col = state.activeColumn;
+  const colInfo = state.columns.find(c => c.name === col);
+  if (!col || !colInfo) return;
+
+  const data = state.data;
+  const stats = getStats(col, data, colInfo.type);
+  let config;
+
+  const numVals = () => data.map(r => r[col]).filter(v => typeof v === 'number' && !isNaN(v));
+
+  if (state.chartType === 'histogram') {
+    let nums = numVals();
+    if (!state.showOutliers) nums = nums.filter(v => v >= stats.q1 - 1.5*stats.iqr && v <= stats.q3 + 1.5*stats.iqr);
+    const bins = d3.bin().thresholds(Math.min(40, Math.ceil(Math.sqrt(nums.length))))(nums);
+    config = {
+      type: 'bar',
+      data: {
+        labels: bins.map(b => fmt((b.x0 + b.x1) / 2)),
+        datasets: [{ label: 'Count', data: bins.map(b => b.length), backgroundColor: CHART_COLORS.accent, borderWidth: 0, barPercentage: 0.98, categoryPercentage: 1 }]
+      },
+      options: { ...chartOptions(false, false), plugins: { ...chartOptions(false,false).plugins, tooltip: { ...chartOptions(false,false).plugins.tooltip, callbacks: { title: (items) => `${fmt(bins[items[0].dataIndex].x0)} – ${fmt(bins[items[0].dataIndex].x1)}` } } } },
+    };
+
+  } else if (state.chartType === 'boxplot') {
+    let nums = numVals();
+    config = {
+      type: 'boxplot',
+      data: {
+        labels: [col],
+        datasets: [{
+          label: col,
+          data: [nums],
+          backgroundColor: 'rgba(124,106,247,0.2)',
+          borderColor: CHART_COLORS.accentBorder,
+          borderWidth: 1.5,
+          outlierBackgroundColor: CHART_COLORS.outlier,
+          outlierRadius: 3,
+          meanBackgroundColor: CHART_COLORS.accentBorder,
+          medianColor: 'var(--accent3)',
+        }]
+      },
+      options: chartOptions(false, false),
+    };
+
+  } else if (state.chartType === 'scatter' || state.chartType === 'bubble') {
+    const xCol = state.activeXCol || col;
+    const yCol = state.activeYCol || col;
+    const sizeCol = state.activeSizeCol;
+    const xInfo = state.columns.find(c => c.name === xCol);
+    let pts = data.map(r => {
+      const pt = { x: r[xCol], y: r[yCol] };
+      if (state.chartType === 'bubble' && sizeCol) {
+        const rawR = r[sizeCol];
+        pt.r = rawR != null ? Math.max(3, Math.min(20, (+rawR / (stats.max || 1)) * 20)) : 5;
+      }
+      return pt;
+    }).filter(p => p.x != null && p.y != null);
+    if (!state.showOutliers) {
+      const ys = getStats(yCol, data, 'numeric');
+      if (ys.iqr) pts = pts.filter(p => p.y >= ys.q1 - 1.5*ys.iqr && p.y <= ys.q3 + 1.5*ys.iqr);
+    }
+    config = {
+      type: state.chartType === 'bubble' ? 'bubble' : 'scatter',
+      data: { datasets: [{ label: `${xCol} vs ${yCol}`, data: pts, backgroundColor: CHART_COLORS.accent, pointRadius: 4, pointHoverRadius: 6 }] },
+      options: chartOptions(false, xInfo?.type !== 'numeric'),
+    };
+
+  } else if (state.chartType === 'area' || state.chartType === 'line' || state.chartType === 'bar') {
+    const labelCol = state.columns.find(c => c.type !== 'numeric' && c.type !== 'geo' && c.name !== col)?.name;
+    let rows = labelCol
+      ? data.map(r => ({ label: r[labelCol], value: r[col] }))
+      : data.map((r, i) => ({ label: i+1, value: r[col] }));
+    rows = rows.filter(r => r.value != null);
+    const lo = stats.q1 - 1.5*stats.iqr, hi = stats.q3 + 1.5*stats.iqr;
+    const isOut = v => stats.outliers.length > 0 && (v < lo || v > hi);
+    if (!state.showOutliers) rows = rows.filter(r => !isOut(r.value));
+    const isArea = state.chartType === 'area';
+    const isLine = state.chartType === 'line' || isArea;
+    config = {
+      type: isLine ? 'line' : 'bar',
+      data: {
+        labels: rows.map(r => r.label),
+        datasets: [{
+          label: col,
+          data: rows.map(r => r.value),
+          backgroundColor: isArea ? 'rgba(124,106,247,0.15)' : rows.map(r => isOut(r.value) ? CHART_COLORS.outlier : CHART_COLORS.accent),
+          borderColor: rows.map(r => isOut(r.value) ? CHART_COLORS.outlier : CHART_COLORS.accentBorder),
+          borderWidth: isLine ? 2 : 0,
+          tension: 0.3,
+          fill: isArea,
+          pointBackgroundColor: rows.map(r => isOut(r.value) ? CHART_COLORS.outlier : CHART_COLORS.accentBorder),
+          pointRadius: isLine ? 3 : undefined,
+        }]
+      },
+      options: chartOptions(false, false),
+    };
+
+  } else {
+    const freq = {};
+    data.forEach(r => { const v = r[col]; if (v != null) freq[v] = (freq[v]||0)+1; });
+    const sorted = Object.entries(freq).sort((a,b) => b[1]-a[1]).slice(0,15);
+    if (state.chartType === 'pie') {
+      config = {
+        type: 'doughnut',
+        data: { labels: sorted.map(e=>e[0]), datasets: [{ data: sorted.map(e=>e[1]), backgroundColor: MULTI_COLORS, borderWidth: 0, hoverOffset: 6 }] },
+        options: { ...chartOptions(true), cutout: '55%' },
+      };
+    } else {
+      config = {
+        type: 'bar',
+        data: { labels: sorted.map(e=>e[0]), datasets: [{ label: col, data: sorted.map(e=>e[1]), backgroundColor: MULTI_COLORS.slice(0, sorted.length), borderWidth: 0 }] },
+        options: chartOptions(false, false),
+      };
+    }
+  }
+  chart = new Chart(canvas, config);
+}
+
+function chartOptions(noscales = false, categoryX = false) {
+  const base = {
+    responsive: true, maintainAspectRatio: false, animation: { duration: 300 },
+    plugins: {
+      legend: { display: false },
+      tooltip: { backgroundColor: '#1e1e24', borderColor: '#2e2e38', borderWidth: 1, titleColor: '#e8e8f0', bodyColor: '#7a7a8c', padding: 10, cornerRadius: 8 }
+    },
+  };
+  if (noscales) return base;
+  return { ...base, scales: {
+    x: { ticks: { color: '#4a4a5a', font: { size: 11 }, maxRotation: 45 }, grid: { color: 'rgba(46,46,56,0.5)' }, type: categoryX ? 'category' : undefined },
+    y: { ticks: { color: '#4a4a5a', font: { size: 11 } }, grid: { color: 'rgba(46,46,56,0.5)' } }
+  }};
+}
+
+// ─── Map Rendering ────────────────────────────────────────────────────────────
+async function loadTopo() {
+  if (topoCache) return topoCache;
+  const res = await fetch('https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json');
+  topoCache = await res.json();
+  return topoCache;
+}
+
+async function loadCountyNames() {
+  if (countyNameCache) return countyNameCache;
+  // Use the TopoJSON properties if available, otherwise just show FIPS
+  countyNameCache = {};
+  return countyNameCache;
+}
+
+async function renderMap() {
+  const wrap = document.getElementById('chart-wrap');
+  if (chart) { chart.destroy(); chart = null; }
+
+  // Determine if this is state-level or county-level
+  const geoCol = state.geoColumn;
+  const geoValues = state.data.map(r => String(r[geoCol]).trim().padStart(5, '0'));
+  const isStateLevelData = geoValues.every(v => parseInt(v) <= 99 || /^\d{2}$/.test(v.replace(/^0+/, '') || '0'));
+
+  const valueCol = state.mapValueCol || state.columns.find(c => c.type === 'numeric')?.name;
+  if (!valueCol) return;
+
+  wrap.innerHTML = `<div id="map-container" style="width:100%;height:100%;position:relative">
+    <div class="map-loading"><div class="spinner"></div><p>Loading map data…</p></div>
+  </div>`;
+
+  try {
+    const topo = await loadTopo();
+
+    // Build FIPS → value lookup
+    const lookup = {};
+    state.data.forEach(row => {
+      const raw = String(row[geoCol]).trim();
+      // Handle state-level: pad to 2 digits
+      const fips = isStateLevelData ? raw.padStart(2, '0') : raw.padStart(5, '0');
+      const val = row[valueCol];
+      if (val != null && !isNaN(+val)) lookup[fips] = +val;
+    });
+
+    const values = Object.values(lookup);
+    if (!values.length) return;
+
+    // Color scale
+    const colorInterp = d3.interpolateRdYlBu; // high = red (risk), low = blue
+    let colorScale;
+    if (state.binMethod === 'quantile') {
+      const q = d3.scaleQuantile().domain(values).range(d3.quantize(t => colorInterp(1 - t), 7));
+      colorScale = v => q(v);
+    } else {
+      const s = d3.scaleSequential().domain([d3.min(values), d3.max(values)]).interpolator(t => colorInterp(1 - t));
+      colorScale = v => s(v);
+    }
+
+    const container = document.getElementById('map-container');
+    container.innerHTML = '';
+    const { width, height } = container.getBoundingClientRect();
+
+    // Get features — state or county level
+    let features, meshInner;
+    if (isStateLevelData) {
+      features = topojson.feature(topo, topo.objects.states).features;
+      meshInner = topojson.mesh(topo, topo.objects.states, (a, b) => a !== b);
+    } else {
+      features = topojson.feature(topo, topo.objects.counties).features;
+      meshInner = topojson.mesh(topo, topo.objects.states, (a, b) => a !== b);
+    }
+
+    const projection = d3.geoAlbersUsa().fitSize([width - 32, height - 32], { type: 'FeatureCollection', features });
+    const pathGen = d3.geoPath().projection(projection);
+
+    const svg = d3.select(container).append('svg')
+      .attr('width', width).attr('height', height);
+
+    const g = svg.append('g').attr('transform', 'translate(16,16)');
+
+    // Draw features
+    g.selectAll('path.feature')
+      .data(features)
+      .join('path')
+      .attr('class', 'feature')
+      .attr('d', pathGen)
+      .attr('fill', d => {
+        const id = String(d.id).padStart(isStateLevelData ? 2 : 5, '0');
+        return lookup[id] != null ? colorScale(lookup[id]) : 'var(--surface3)';
+      })
+      .attr('stroke', '#0d0d0f')
+      .attr('stroke-width', isStateLevelData ? 0.8 : 0.3)
+      .style('cursor', 'pointer')
+      .on('mousemove', (event, d) => {
+        const id = String(d.id).padStart(isStateLevelData ? 2 : 5, '0');
+        const val = lookup[id];
+        const name = d.properties?.name || id;
+        const tt = document.getElementById('map-tooltip');
+        document.getElementById('tt-name').textContent = name;
+        document.getElementById('tt-value').innerHTML = val != null
+          ? `${valueCol}: <strong>${fmt(val)}</strong>`
+          : `<span style="color:var(--text-dim)">No data</span>`;
+        tt.style.opacity = '1';
+        tt.style.left = (event.clientX + 14) + 'px';
+        tt.style.top = (event.clientY - 10) + 'px';
+      })
+      .on('mouseleave', () => { document.getElementById('map-tooltip').style.opacity = '0'; });
+
+    // State borders overlay (for county maps)
+    if (!isStateLevelData) {
+      g.append('path')
+        .datum(meshInner)
+        .attr('d', pathGen)
+        .attr('fill', 'none')
+        .attr('stroke', '#0d0d0f')
+        .attr('stroke-width', 1);
+    }
+
+    // Coverage badge
+    const covered = features.filter(d => lookup[String(d.id).padStart(isStateLevelData ? 2 : 5, '0')] != null).length;
+    const pct = Math.round(covered / features.length * 100);
+    d3.select(container).append('div').attr('class', 'map-coverage')
+      .html(`<strong>${covered.toLocaleString()}</strong> / ${features.length.toLocaleString()} regions with data (${pct}%)`);
+
+    // Legend
+    const legendEl = d3.select(container).append('div').attr('class', 'map-legend');
+    legendEl.append('div').attr('class', 'map-legend-label').text(valueCol);
+
+    const legendCanvas = document.createElement('canvas');
+    legendCanvas.className = 'map-legend-bar';
+    legendCanvas.width = 160; legendCanvas.height = 8;
+    const lctx = legendCanvas.getContext('2d');
+    const grad = lctx.createLinearGradient(0, 0, 160, 0);
+    for (let i = 0; i <= 10; i++) {
+      grad.addColorStop(i/10, colorInterp(i/10));
+    }
+    lctx.fillStyle = grad;
+    lctx.fillRect(0, 0, 160, 8);
+    legendEl.node().appendChild(legendCanvas);
+
+    legendEl.append('div').attr('class', 'map-legend-range')
+      .html(`<span>${fmt(d3.min(values))}</span><span>${fmt(d3.max(values))}</span>`);
+
+    // Update map insights
+    updateMapInsights(lookup, features, valueCol, values, isStateLevelData);
+
+  } catch (err) {
+    document.getElementById('map-container').innerHTML =
+      `<div class="map-loading"><p style="color:#f7a86a">Failed to load map data. Check your connection.</p></div>`;
+    console.error(err);
+  }
+}
+
+function updateMapInsights(lookup, features, valueCol, values, isState) {
+  const covered = features.filter(d => lookup[String(d.id).padStart(isState ? 2 : 5, '0')] != null).length;
+  const sorted = [...values].sort((a,b) => a-b);
+  const median = sorted[Math.floor(sorted.length/2)];
+  const mean = values.reduce((a,b) => a+b,0) / values.length;
+
+  const insightList = document.getElementById('insight-list');
+  insightList.innerHTML = `
+    <div class="insight-item info">
+      <div class="insight-type">Coverage</div>
+      ${covered} of ${features.length} ${isState ? 'states' : 'counties'} have data for <em>${valueCol}</em>.
+    </div>
+    <div class="insight-item ${Math.abs(mean - median) / (sorted[sorted.length-1] - sorted[0] + 1) > 0.1 ? 'warning' : 'good'}">
+      <div class="insight-type">Distribution</div>
+      Mean: <strong style="color:var(--text)">${fmt(mean)}</strong> · Median: <strong style="color:var(--text)">${fmt(median)}</strong>.
+      ${Math.abs(mean - median) > 0.1 * (sorted[sorted.length-1] - sorted[0]) ? 'Skewed — some regions pull the average up.' : 'Fairly even spread across regions.'}
+    </div>
+    <div class="insight-item info">
+      <div class="insight-type">Binning method</div>
+      <strong style="color:var(--text)">${state.binMethod === 'quantile' ? 'Quantile' : 'Equal interval'}</strong> — ${state.binMethod === 'quantile' ? 'equal number of regions per color band, makes patterns visible but can exaggerate small differences' : 'equal value ranges per band, preserves true magnitude but sparse extremes can wash out middle values'}.
+    </div>
+  `;
+}
+
+// ─── Outlier Toggle ───────────────────────────────────────────────────────────
+function toggleOutliers() {
+  state.showOutliers = !state.showOutliers;
+  document.getElementById('outlier-toggle').classList.toggle('on', state.showOutliers);
+  renderChart();
+}
+
+// ─── AI Panel ─────────────────────────────────────────────────────────────────
+function goHome() {
+  if (chart) { chart.destroy(); chart = null; }
+  state.data = null; state.columns = []; state.activeColumn = null; state.geoColumn = null;
+  document.getElementById('workspace').style.display = 'none';
+  document.getElementById('upload-screen').style.display = 'flex';
+  document.getElementById('upload-fab').style.display = 'none';
+  document.getElementById('file-input').value = '';
+}
+
+function openAiPanel() {
+  alert('AI Insights coming soon — bring your own Claude API key to unlock narrative analysis, story angles, and deeper pattern explanations.');
+}
+</script>
+</body>
+</html>
