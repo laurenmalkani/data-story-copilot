@@ -547,18 +547,39 @@
     }
     .angle-bullet-text { font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; }
 
-    /* Strip angle bullet */
-    .strip-angle .sa-type {
-      font-size: 0.6rem; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.06em; color: var(--accent2); margin-bottom: 3px;
+    /* Strip angle cards */
+    .strip-angle {
+      padding: 14px 18px; min-width: 240px; max-width: 280px;
+      border-right: 1px solid var(--border);
+      flex-shrink: 0; display: flex; flex-direction: column; gap: 5px;
+      background: none;
+    }
+    .strip-angle:hover { background: rgba(255,255,255,0.02); }
+    .strip-angle .sa-num {
+      font-size: 0.65rem; color: var(--text-dim); font-variant-numeric: tabular-nums;
+    }
+    .strip-angle .sa-type-row {
       display: flex; align-items: center; gap: 6px;
     }
-    .strip-angle .sa-type::before {
-      content: ''; width: 5px; height: 5px; border-radius: 50%;
-      background: var(--accent2); display: inline-block;
+    .strip-angle .sa-dot {
+      width: 5px; height: 5px; border-radius: 50%; background: var(--accent2); flex-shrink: 0;
     }
-    .strip-angle.ai-angle .sa-type { color: var(--accent); }
-    .strip-angle.ai-angle .sa-type::before { background: var(--accent); }
+    .strip-angle .sa-type-label {
+      font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.07em; color: var(--accent2);
+    }
+    .strip-angle .sa-type-tag {
+      font-size: 0.6rem; color: var(--text-dim);
+      background: var(--surface3); border-radius: 3px; padding: 1px 5px;
+    }
+    .strip-angle .sa-headline {
+      font-size: 0.82rem; font-weight: 600; color: var(--text); line-height: 1.3;
+    }
+    .strip-angle .sa-body {
+      font-size: 0.75rem; color: var(--text-muted); line-height: 1.5;
+    }
+    .strip-angle.ai-angle .sa-dot { background: var(--accent); }
+    .strip-angle.ai-angle .sa-type-label { color: var(--accent); }
 
     /* Map color scheme */
     .color-scheme-row { display: flex; gap: 5px; align-items: center; }
@@ -689,11 +710,13 @@
           <p>Select a column to explore</p>
         </div>
       </div>
-      <div id="angles-strip" style="display:none; border-top:1px solid var(--border); padding:14px 20px; background:var(--surface); overflow-x:auto">
-        <div style="display:flex; gap:12px; align-items:flex-start; min-width:max-content">
-          <div style="font-size:0.7rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.1em;padding-top:3px;flex-shrink:0">Story Angles</div>
-          <div id="angles-strip-content" style="display:flex;gap:10px;flex-wrap:nowrap"></div>
-          <button class="btn-generate-ai" id="btn-ai-angles-strip" onclick="generateAIAngles()" style="display:none;flex-shrink:0;white-space:nowrap;width:auto;padding:6px 14px">✦ AI angles</button>
+      <div id="angles-strip" style="display:none; border-top:1px solid var(--border); background:var(--surface); overflow-x:auto; flex-shrink:0">
+        <div style="display:flex; gap:0; align-items:stretch; min-width:max-content">
+          <div style="padding:14px 16px;font-size:0.65rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.1em;writing-mode:vertical-rl;transform:rotate(180deg);border-right:1px solid var(--border);flex-shrink:0;display:flex;align-items:center">Story Angles</div>
+          <div id="angles-strip-content" style="display:flex;gap:0;flex-wrap:nowrap"></div>
+          <div style="display:flex;align-items:center;padding:0 16px;border-left:1px solid var(--border);flex-shrink:0">
+            <button class="btn-generate-ai" id="btn-ai-angles-strip" onclick="generateAIAngles()" style="display:none;white-space:nowrap;width:auto;padding:8px 16px">✦ Generate AI angles</button>
+          </div>
         </div>
       </div>
     </main>
@@ -732,22 +755,6 @@
       <div id="outlier-panel" style="display:none">
         <div class="sidebar-section-label">Outlier Connections</div>
         <div id="outlier-connections"></div>
-      </div>
-
-      <div>
-        <div class="sidebar-section-label" style="display:flex;align-items:center;justify-content:space-between">
-          Story Angles
-          <span style="font-size:0.65rem;color:var(--accent2);font-weight:600;text-transform:none;letter-spacing:0">algorithmic</span>
-        </div>
-        <div class="story-angles" id="story-angles">
-          <div style="color:var(--text-dim); font-size:0.8rem; padding:4px 0;">Select a column to see story suggestions</div>
-        </div>
-        <div id="ai-angles-section" style="margin-top:12px">
-          <button class="btn-generate-ai" id="btn-ai-angles" onclick="generateAIAngles()" style="display:none">
-            ✦ Generate AI story angles
-          </button>
-          <div class="ai-angles" id="ai-angles"></div>
-        </div>
       </div>
     </aside>
 
@@ -1642,9 +1649,8 @@ function saveApiKey() {
   updateApiStatus();
   closeSettings();
   // Refresh AI button visibility
-  if (state.activeColumn) {
-    document.getElementById('btn-ai-angles').style.display = key ? 'block' : 'none';
-  }
+  const aiBtn = document.getElementById('btn-ai-angles-strip');
+  if (aiBtn) aiBtn.style.display = key ? 'inline-flex' : 'none';
 }
 
 function updateApiStatus() {
@@ -1797,48 +1803,32 @@ function updateStoryAngles(col, stats, type) {
     }
   }
 
-  // Right sidebar
   const typeTag = type === 'numeric' ? 'NUMERIC' : type === 'categorical' ? 'CATEGORICAL' : type.toUpperCase();
-
-  const container = document.getElementById('story-angles');
-  if (angles.length === 0) {
-    container.innerHTML = `<div style="color:var(--text-dim); font-size:0.8rem; padding:4px 0;">No strong patterns detected for this column.</div>`;
-  } else {
-    container.innerHTML = angles.map(a => `
-      <div class="angle-bullet">
-        <div class="angle-dot"></div>
-        <div class="angle-bullet-body">
-          <div class="angle-bullet-top">
-            <span class="angle-bullet-title">${a.label}</span>
-            <span class="angle-type-tag">${typeTag}</span>
-          </div>
-          <div class="angle-bullet-text"><strong style="color:var(--text)">${a.headline}</strong> — ${a.body}</div>
-        </div>
-      </div>
-    `).join('');
-  }
 
   // Bottom strip
   const strip = document.getElementById('angles-strip');
   const stripContent = document.getElementById('angles-strip-content');
   strip.style.display = 'block';
   if (angles.length === 0) {
-    stripContent.innerHTML = `<div style="color:var(--text-dim);font-size:0.78rem;padding-top:2px">No strong patterns detected.</div>`;
+    stripContent.innerHTML = `<div style="color:var(--text-dim);font-size:0.78rem;padding:14px">No strong patterns detected.</div>`;
   } else {
-    stripContent.innerHTML = angles.map(a => `
+    stripContent.innerHTML = angles.map((a, i) => `
       <div class="strip-angle">
-        <div class="sa-type">${a.label} <span style="opacity:0.5;font-weight:400;text-transform:none">${typeTag}</span></div>
+        <div class="sa-num">0${i+1}</div>
+        <div class="sa-type-row">
+          <div class="sa-dot"></div>
+          <span class="sa-type-label">${a.label}</span>
+          <span class="sa-type-tag">${typeTag}</span>
+        </div>
         <div class="sa-headline">${a.headline}</div>
         <div class="sa-body">${a.body}</div>
       </div>
     `).join('');
   }
 
-  // Show/hide AI angles buttons
+  // Show/hide AI button in strip
   const showAI = !!(apiKey && type === 'numeric');
-  document.getElementById('btn-ai-angles').style.display = showAI ? 'block' : 'none';
   document.getElementById('btn-ai-angles-strip').style.display = showAI ? 'flex' : 'none';
-  document.getElementById('ai-angles').innerHTML = '';
 }
 
 // ─── AI Story Angles (Claude API) ─────────────────────────────────────────────
@@ -1850,7 +1840,7 @@ async function generateAIAngles() {
   const colInfo = state.columns.find(c => c.name === col);
   const stats = getStats(col, state.data, colInfo.type);
 
-  const btn = document.getElementById('btn-ai-angles');
+  const btn = document.getElementById('btn-ai-angles-strip');
   btn.disabled = true;
   btn.textContent = '✦ Generating…';
 
@@ -1869,22 +1859,47 @@ async function generateAIAngles() {
     otherColumns: state.columns.filter(c => c.name !== col).map(c => c.name).slice(0, 10).join(', '),
   };
 
-  const prompt = `You are a data journalist's assistant. Given this data summary, suggest 3 specific, compelling story angles a journalist could pursue. Each angle should have a punchy headline and 2-3 sentences explaining the angle and what reporting questions it raises.
+  const prompt = `You are not a data analyst. You are an editorial data storyteller.
+
+Your job is to produce narrative angles, not observations.
+
+Given a dataset, generate 3–5 distinct story angles. Each angle must:
+1. Make a clear, specific claim (not a description)
+2. Be defensible with the data (cite what supports it)
+3. Reflect a perspective or framing (economic, behavioral, structural, inequity, etc.)
+4. Avoid generic observations (e.g. "there is an outlier", "this value is high")
+5. Be written as a headline or thesis, not a question
+
+Prioritize angles that reveal tension, contradiction, or imbalance — challenge obvious interpretations — surface something non-obvious but defensible.
+
+Avoid "analysis voice." Do not say "this suggests", "this may indicate", or "interesting trend." Write with conviction, like a journalist or strategist.
+
+Each angle must fall into a different narrative lens from this list:
+- Concentration (who dominates vs who doesn't)
+- Change over time (what is shifting and why)
+- Inequality or imbalance
+- Behavioral pattern (what people/systems are doing)
+- Structural/systemic explanation (what is causing this underneath)
 
 Dataset: ${summary.dataset}
 Column being explored: "${summary.column}"
 Total rows: ${summary.rows}
 Stats: mean=${summary.mean}, median=${summary.median}, min=${summary.min}, max=${summary.max}
-Outliers: ${summary.outliers}
+Outliers: ${summary.outliers} values beyond 1.5× IQR
 Missing values: ${summary.nulls}
 Other columns available: ${summary.otherColumns}
 Current visualization: ${summary.chartType}
 
 Respond with exactly this JSON format (no markdown, just raw JSON):
 [
-  {"headline": "...", "angle": "...", "questions": "..."},
-  {"headline": "...", "angle": "...", "questions": "..."},
-  {"headline": "...", "angle": "...", "questions": "..."}
+  {
+    "lens": "Concentration",
+    "headline": "...",
+    "claim": "...",
+    "evidence": "...",
+    "deeper": "...",
+    "alternative": "..."
+  }
 ]`;
 
   try {
@@ -1898,7 +1913,7 @@ Respond with exactly this JSON format (no markdown, just raw JSON):
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 800,
+        max_tokens: 1500,
         messages: [{ role: 'user', content: prompt }],
       }),
     });
@@ -1909,33 +1924,40 @@ Respond with exactly this JSON format (no markdown, just raw JSON):
     }
 
     const data = await res.json();
-    const text = data.content[0].text.trim();
+    const raw = data.content[0].text.trim();
+    const text = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/i, '');
     const angles = JSON.parse(text);
-
-    const aiHtml = angles.map(a => `
-      <div class="ai-angle-item">
-        <div class="ai-angle-headline">✦ ${a.headline}</div>
-        <div class="ai-angle-body">${a.angle} <em style="color:var(--text-dim)">${a.questions}</em></div>
-      </div>
-    `).join('');
-    document.getElementById('ai-angles').innerHTML = aiHtml;
 
     // Add to strip
     const stripContent = document.getElementById('angles-strip-content');
-    stripContent.innerHTML += angles.map(a => `
+    const existingCount = stripContent.querySelectorAll('.strip-angle').length;
+    stripContent.innerHTML += angles.map((a, i) => `
       <div class="strip-angle ai-angle">
-        <div class="sa-label">✦ AI · ${a.headline.split(':')[0]}</div>
+        <div class="sa-num">0${existingCount + i + 1}</div>
+        <div class="sa-type-row">
+          <div class="sa-dot"></div>
+          <span class="sa-type-label">✦ ${a.lens || 'AI Insight'}</span>
+          <span class="sa-type-tag">AI</span>
+        </div>
         <div class="sa-headline">${a.headline}</div>
-        <div class="sa-body">${a.angle}</div>
+        <div class="sa-body">${a.claim}</div>
+        <div class="sa-evidence" style="margin-top:6px;font-size:11px;color:var(--text-dim);border-left:2px solid var(--accent);padding-left:8px">${a.evidence}</div>
+        <div class="sa-deeper" style="margin-top:6px;font-size:11px;color:var(--text-muted,#6a6a7a)"><strong style="color:var(--text-dim)">Deeper:</strong> ${a.deeper}</div>
+        <div class="sa-alt" style="margin-top:4px;font-size:11px;color:var(--text-muted,#6a6a7a)"><strong style="color:var(--text-dim)">Alt take:</strong> ${a.alternative}</div>
       </div>
     `).join('');
 
   } catch (err) {
-    document.getElementById('ai-angles').innerHTML = `
-      <div class="insight-item warning">
-        <div class="insight-type">Error</div>
-        ${err.message.includes('401') ? 'Invalid API key — check your key in AI Settings.' : err.message}
-      </div>`;
+    const stripContent = document.getElementById('angles-strip-content');
+    if (stripContent) {
+      const existingCount = stripContent.querySelectorAll('.strip-angle').length;
+      stripContent.innerHTML += `
+        <div class="strip-angle">
+          <div class="sa-num">0${existingCount + 1}</div>
+          <div class="sa-type-row"><div class="sa-dot" style="background:#ff4d4d"></div><span class="sa-type-label">AI Error</span></div>
+          <div class="sa-body">${err.message.includes('401') ? 'Invalid API key — check your key in AI Settings.' : err.message}</div>
+        </div>`;
+    }
   } finally {
     btn.disabled = false;
     btn.textContent = '✦ Generate AI story angles';
