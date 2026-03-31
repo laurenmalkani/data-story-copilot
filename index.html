@@ -34,29 +34,57 @@
     }
 
     .header {
-      padding: 20px 32px;
+      padding: 0 24px;
+      height: 52px;
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 0;
     }
 
     .logo-mark {
-      width: 32px; height: 32px;
+      width: 28px; height: 28px;
       background: linear-gradient(135deg, var(--accent), var(--accent2));
-      border-radius: 8px;
+      border-radius: 7px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 16px;
+      font-size: 14px; flex-shrink: 0;
     }
 
-    .logo-text { font-size: 15px; font-weight: 600; letter-spacing: -0.02em; }
+    .logo-text { font-size: 14px; font-weight: 600; letter-spacing: -0.02em; }
     .logo-text span { color: var(--text-muted); font-weight: 400; }
+
+    .nav-home {
+      display: flex; align-items: center; gap: 9px;
+      cursor: pointer; text-decoration: none; color: inherit;
+      padding: 6px 10px 6px 0;
+      border-radius: 8px; transition: opacity 0.15s;
+    }
+    .nav-home:hover { opacity: 0.7; }
+
+    .nav-back {
+      display: none; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 7px;
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text-muted); font-size: 14px; cursor: pointer;
+      transition: all 0.15s; margin-right: 10px; flex-shrink: 0;
+    }
+    .nav-back:hover { border-color: var(--accent); color: var(--text); }
+
+    .nav-sep {
+      color: var(--text-dim); font-size: 13px; margin: 0 8px; flex-shrink: 0;
+    }
+
+    .nav-crumb {
+      font-size: 13px; color: var(--text-muted);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      max-width: 220px;
+    }
 
     /* Upload */
     #upload-screen {
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      min-height: calc(100vh - 73px);
+      min-height: calc(100vh - 53px);
       padding: 40px; gap: 48px;
     }
 
@@ -116,7 +144,7 @@
     .sample-chip:hover { border-color: var(--accent); color: var(--text); }
 
     /* Workspace */
-    #workspace { display: none; height: calc(100vh - 73px); overflow: hidden; }
+    #workspace { display: none; height: calc(100vh - 53px); overflow: hidden; }
 
     .workspace-layout {
       display: grid;
@@ -207,8 +235,12 @@
     }
     .axis-select:focus { border-color: var(--accent); }
 
-    .axis-label { font-size: 0.75rem; color: #4a4a5a; }
+    .axis-label { font-size: 0.75rem; color: #7a7a8c; }
+    .axis-select { color: #e8e8f0 !important; }
     .axis-select option { background: #1e1e24; color: #e8e8f0; }
+    .overlay-select { color: #e8e8f0 !important; }
+    .toolbar-label { color: #4a4a5a !important; }
+    select { color: #e8e8f0; }
 
     .chart-canvas-wrap {
       flex: 1; padding: 24px; position: relative; overflow: hidden;
@@ -364,7 +396,7 @@
 
     .btn-header {
       background: none; border: 1px solid var(--border); border-radius: 8px;
-      padding: 7px 14px; font-size: 0.8rem; color: var(--text-muted);
+      padding: 6px 13px; font-size: 0.78rem; color: var(--text-muted);
       cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 6px;
     }
     .btn-header:hover { border-color: var(--accent); color: var(--text); }
@@ -507,10 +539,14 @@
 </div>
 
 <header class="header">
-  <div class="logo-mark" onclick="goHome()" style="cursor:pointer">◈</div>
-  <div class="logo-text" onclick="goHome()" style="cursor:pointer">data story <span>copilot</span></div>
+  <div class="nav-back" id="btn-back" onclick="goHome()" title="Back to home">←</div>
+  <div class="nav-home" onclick="goHome()">
+    <div class="logo-mark">◈</div>
+    <div class="logo-text">data story <span>copilot</span></div>
+  </div>
+  <span class="nav-sep" id="nav-sep" style="display:none">›</span>
+  <span class="nav-crumb" id="nav-crumb" style="display:none"></span>
   <div class="header-actions">
-    <button class="btn-header" id="btn-back" onclick="goHome()" style="display:none">← Back</button>
     <button class="btn-header" onclick="openSettings()">⚙ AI Settings</button>
   </div>
 </header>
@@ -933,6 +969,9 @@ function processData(data, filename) {
   document.getElementById('workspace').style.display = 'block';
   document.getElementById('upload-fab').style.display = 'block';
   document.getElementById('btn-back').style.display = 'flex';
+  document.getElementById('nav-sep').style.display = '';
+  document.getElementById('nav-crumb').style.display = '';
+  document.getElementById('nav-crumb').textContent = filename;
   updateApiStatus();
   document.getElementById('filename').textContent = filename;
   document.getElementById('row-count').textContent = data.length.toLocaleString();
@@ -1520,6 +1559,8 @@ function goHome() {
   document.getElementById('upload-screen').style.display = 'flex';
   document.getElementById('upload-fab').style.display = 'none';
   document.getElementById('btn-back').style.display = 'none';
+  document.getElementById('nav-sep').style.display = 'none';
+  document.getElementById('nav-crumb').style.display = 'none';
   document.getElementById('file-input').value = '';
 }
 
