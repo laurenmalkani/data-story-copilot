@@ -207,7 +207,8 @@
     }
     .axis-select:focus { border-color: var(--accent); }
 
-    .axis-label { font-size: 0.75rem; color: var(--text-dim); }
+    .axis-label { font-size: 0.75rem; color: #4a4a5a; }
+    .axis-select option { background: #1e1e24; color: #e8e8f0; }
 
     .chart-canvas-wrap {
       flex: 1; padding: 24px; position: relative; overflow: hidden;
@@ -455,6 +456,34 @@
     .ai-angle-headline { font-weight: 600; font-size: 0.85rem; margin-bottom: 5px; color: var(--text); }
     .ai-angle-body { color: var(--text-muted); }
 
+    /* Story angles strip */
+    .strip-angle {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-left: 3px solid var(--accent2);
+      border-radius: 8px; padding: 10px 13px; min-width: 220px; max-width: 260px;
+      flex-shrink: 0;
+    }
+    .strip-angle .sa-label { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent2); margin-bottom: 4px; }
+    .strip-angle .sa-headline { font-size: 0.8rem; font-weight: 600; color: var(--text); margin-bottom: 3px; line-height: 1.3; }
+    .strip-angle .sa-body { font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; }
+    .strip-angle.ai-angle { border-left-color: var(--accent); background: linear-gradient(135deg, rgba(124,106,247,0.06), rgba(247,106,143,0.03)); }
+    .strip-angle.ai-angle .sa-label { color: var(--accent); }
+
+    /* Outlier connections */
+    .outlier-connection {
+      background: var(--surface2); border-radius: 8px; padding: 11px 12px;
+      margin-bottom: 6px; border-left: 3px solid var(--accent3);
+      font-size: 0.78rem; line-height: 1.5;
+    }
+    .outlier-connection .oc-col { font-weight: 600; color: var(--text); margin-bottom: 3px; }
+    .outlier-connection .oc-detail { color: var(--text-muted); }
+    .outlier-row-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: rgba(247,168,106,0.15); border: 1px solid rgba(247,168,106,0.3);
+      border-radius: 4px; padding: 2px 7px; font-size: 0.7rem; color: #f7a86a;
+      margin-bottom: 8px;
+    }
+
     /* Map color scheme */
     .color-scheme-row { display: flex; gap: 5px; align-items: center; }
     .color-swatch {
@@ -480,8 +509,8 @@
 <header class="header">
   <div class="logo-mark" onclick="goHome()" style="cursor:pointer">◈</div>
   <div class="logo-text" onclick="goHome()" style="cursor:pointer">data story <span>copilot</span></div>
-  <div class="header-actions" id="header-actions" style="display:none">
-    <button class="btn-header" onclick="goHome()">← New dataset</button>
+  <div class="header-actions">
+    <button class="btn-header" id="btn-back" onclick="goHome()" style="display:none">← Back</button>
     <button class="btn-header" onclick="openSettings()">⚙ AI Settings</button>
   </div>
 </header>
@@ -565,11 +594,24 @@
           <button class="bin-btn active" onclick="setBinMethod('quantile', this)">Quantile</button>
           <button class="bin-btn" onclick="setBinMethod('equal', this)">Equal</button>
         </div>
+        <div id="overlay-toolbar" style="display:none; align-items:center; gap:6px; margin-left:8px; padding-left:12px; border-left:1px solid var(--border)">
+          <span class="axis-label">+ Overlay</span>
+          <select class="axis-select" id="overlay-select" onchange="setOverlay(this.value)">
+            <option value="">None</option>
+          </select>
+        </div>
       </div>
       <div class="chart-canvas-wrap" id="chart-wrap">
         <div class="chart-placeholder">
           <div class="icon">◈</div>
           <p>Select a column to explore</p>
+        </div>
+      </div>
+      <div id="angles-strip" style="display:none; border-top:1px solid var(--border); padding:14px 20px; background:var(--surface); overflow-x:auto">
+        <div style="display:flex; gap:12px; align-items:flex-start; min-width:max-content">
+          <div style="font-size:0.7rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.1em;padding-top:3px;flex-shrink:0">Story Angles</div>
+          <div id="angles-strip-content" style="display:flex;gap:10px;flex-wrap:nowrap"></div>
+          <button class="btn-generate-ai" id="btn-ai-angles-strip" onclick="generateAIAngles()" style="display:none;flex-shrink:0;white-space:nowrap;width:auto;padding:6px 14px">✦ AI angles</button>
         </div>
       </div>
     </main>
@@ -593,12 +635,6 @@
           <label>Show outliers</label>
           <div class="toggle on" id="outlier-toggle" onclick="toggleOutliers()"></div>
         </div>
-        <div class="overlay-row" id="overlay-row" style="display:none; margin-top:8px">
-          <label>Overlay column</label>
-          <select class="overlay-select" id="overlay-select" onchange="setOverlay(this.value)">
-            <option value="">None</option>
-          </select>
-        </div>
         <div id="map-color-row" style="display:none; margin-top:8px">
           <div class="sidebar-section-label" style="margin-bottom:8px">Map color</div>
           <div class="color-scheme-row">
@@ -611,8 +647,16 @@
         </div>
       </div>
 
+      <div id="outlier-panel" style="display:none">
+        <div class="sidebar-section-label">Outlier Connections</div>
+        <div id="outlier-connections"></div>
+      </div>
+
       <div>
-        <div class="sidebar-section-label">Story Angles</div>
+        <div class="sidebar-section-label" style="display:flex;align-items:center;justify-content:space-between">
+          Story Angles
+          <span style="font-size:0.65rem;color:var(--accent2);font-weight:600;text-transform:none;letter-spacing:0">algorithmic</span>
+        </div>
         <div class="story-angles" id="story-angles">
           <div style="color:var(--text-dim); font-size:0.8rem; padding:4px 0;">Select a column to see story suggestions</div>
         </div>
@@ -888,7 +932,7 @@ function processData(data, filename) {
   document.getElementById('upload-screen').style.display = 'none';
   document.getElementById('workspace').style.display = 'block';
   document.getElementById('upload-fab').style.display = 'block';
-  document.getElementById('header-actions').style.display = 'flex';
+  document.getElementById('btn-back').style.display = 'flex';
   updateApiStatus();
   document.getElementById('filename').textContent = filename;
   document.getElementById('row-count').textContent = data.length.toLocaleString();
@@ -968,7 +1012,7 @@ function selectColumn(colName) {
   const numCols = state.columns.filter(c => c.type === 'numeric' && c.name !== colName).map(c => c.name);
   const overlaySel = document.getElementById('overlay-select');
   overlaySel.innerHTML = `<option value="">None</option>` + numCols.map(c => `<option value="${c}" ${c === state.overlayColumn ? 'selected':''}>${c}</option>`).join('');
-  document.getElementById('overlay-row').style.display = colInfo.type === 'numeric' ? 'flex' : 'none';
+  document.getElementById('overlay-toolbar').style.display = colInfo.type === 'numeric' ? 'flex' : 'none';
 
   // Map color row
   document.getElementById('map-color-row').style.display = colInfo.type === 'geo' ? 'block' : 'none';
@@ -1250,6 +1294,22 @@ function renderChart() {
       };
     }
   }
+  // Outlier click handler
+  if (config.options) {
+    config.options.onClick = (evt, elements) => {
+      if (!elements.length) return;
+      const idx = elements[0].index;
+      const col = state.activeColumn;
+      const colInfo = state.columns.find(c => c.name === col);
+      if (colInfo?.type !== 'numeric') return;
+      const stats = getStats(col, state.data, 'numeric');
+      const lo = stats.q1 - 1.5 * stats.iqr, hi = stats.q3 + 1.5 * stats.iqr;
+      const clickedVal = chart?.data?.datasets?.[0]?.data?.[idx];
+      const isOut = typeof clickedVal === 'number' && (clickedVal < lo || clickedVal > hi);
+      if (isOut) showOutlierConnections(col, stats, lo, hi);
+    };
+  }
+
   chart = new Chart(canvas, config);
 }
 
@@ -1459,7 +1519,7 @@ function goHome() {
   document.getElementById('workspace').style.display = 'none';
   document.getElementById('upload-screen').style.display = 'flex';
   document.getElementById('upload-fab').style.display = 'none';
-  document.getElementById('header-actions').style.display = 'none';
+  document.getElementById('btn-back').style.display = 'none';
   document.getElementById('file-input').value = '';
 }
 
@@ -1507,6 +1567,53 @@ function updateApiStatus() {
 function setOverlay(col) {
   state.overlayColumn = col || null;
   renderChart();
+}
+
+// ─── Outlier Connections ──────────────────────────────────────────────────────
+function showOutlierConnections(col, stats, lo, hi) {
+  const outlierRows = state.data.filter(r => {
+    const v = r[col];
+    return typeof v === 'number' && !isNaN(v) && (v < lo || v > hi);
+  });
+
+  if (!outlierRows.length) return;
+
+  const numCols = state.columns.filter(c => c.type === 'numeric' && c.name !== col);
+  const allRows = state.data.filter(r => typeof r[col] === 'number' && !isNaN(r[col]));
+
+  const connections = numCols.map(c => {
+    const outlierVals = outlierRows.map(r => r[c.name]).filter(v => typeof v === 'number' && !isNaN(v));
+    const allVals = allRows.map(r => r[c.name]).filter(v => typeof v === 'number' && !isNaN(v));
+    if (!outlierVals.length || !allVals.length) return null;
+    const outlierMean = outlierVals.reduce((a,b) => a+b, 0) / outlierVals.length;
+    const allMean = allVals.reduce((a,b) => a+b, 0) / allVals.length;
+    const diff = allMean !== 0 ? (outlierMean - allMean) / Math.abs(allMean) : 0;
+    return { col: c.name, outlierMean, allMean, diff };
+  }).filter(Boolean).sort((a,b) => Math.abs(b.diff) - Math.abs(a.diff)).slice(0, 5);
+
+  const panel = document.getElementById('outlier-panel');
+  const container = document.getElementById('outlier-connections');
+  panel.style.display = 'block';
+
+  // Label col for identifying outlier rows
+  const labelCol = state.columns.find(c => c.type !== 'numeric' && c.type !== 'geo')?.name;
+
+  container.innerHTML = `
+    <div class="outlier-row-tag">⬡ ${outlierRows.length} outlier row${outlierRows.length > 1 ? 's' : ''} in "${col}"</div>
+    ${labelCol ? `<div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:8px">${outlierRows.map(r => r[labelCol]).slice(0,5).join(', ')}${outlierRows.length > 5 ? '…' : ''}</div>` : ''}
+    ${connections.length ? connections.map(c => {
+      const dir = c.diff > 0 ? '↑' : '↓';
+      const pct = Math.abs(Math.round(c.diff * 100));
+      const color = Math.abs(c.diff) > 0.3 ? (c.diff > 0 ? 'var(--accent2)' : 'var(--accent3)') : 'var(--text-muted)';
+      return `<div class="outlier-connection">
+        <div class="oc-col">${c.col}</div>
+        <div class="oc-detail">Outlier rows avg: <strong style="color:${color}">${dir} ${fmt(c.outlierMean)}</strong> vs overall <strong style="color:var(--text)">${fmt(c.allMean)}</strong> (${pct}% ${c.diff > 0 ? 'higher' : 'lower'})</div>
+      </div>`;
+    }).join('') : `<div style="color:var(--text-dim);font-size:0.78rem">No strong patterns found in other columns.</div>`}
+  `;
+
+  // Scroll to panel
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 // ─── Map Color Scheme ─────────────────────────────────────────────────────────
@@ -1593,9 +1700,10 @@ function updateStoryAngles(col, stats, type) {
     }
   }
 
+  // Right sidebar
   const container = document.getElementById('story-angles');
   if (angles.length === 0) {
-    container.innerHTML = `<div style="color:var(--text-dim); font-size:0.8rem; padding:4px 0;">No strong patterns detected algorithmically for this column.</div>`;
+    container.innerHTML = `<div style="color:var(--text-dim); font-size:0.8rem; padding:4px 0;">No strong patterns detected for this column.</div>`;
   } else {
     container.innerHTML = angles.map(a => `
       <div class="angle-item">
@@ -1606,9 +1714,26 @@ function updateStoryAngles(col, stats, type) {
     `).join('');
   }
 
-  // Show/hide AI angles button
-  const btn = document.getElementById('btn-ai-angles');
-  btn.style.display = (apiKey && type === 'numeric') ? 'block' : 'none';
+  // Bottom strip
+  const strip = document.getElementById('angles-strip');
+  const stripContent = document.getElementById('angles-strip-content');
+  strip.style.display = 'block';
+  if (angles.length === 0) {
+    stripContent.innerHTML = `<div style="color:var(--text-dim);font-size:0.78rem;padding-top:2px">No strong patterns detected for this column.</div>`;
+  } else {
+    stripContent.innerHTML = angles.map(a => `
+      <div class="strip-angle">
+        <div class="sa-label">${a.label}</div>
+        <div class="sa-headline">${a.headline}</div>
+        <div class="sa-body">${a.body}</div>
+      </div>
+    `).join('');
+  }
+
+  // Show/hide AI angles buttons
+  const showAI = !!(apiKey && type === 'numeric');
+  document.getElementById('btn-ai-angles').style.display = showAI ? 'block' : 'none';
+  document.getElementById('btn-ai-angles-strip').style.display = showAI ? 'flex' : 'none';
   document.getElementById('ai-angles').innerHTML = '';
 }
 
@@ -1683,10 +1808,21 @@ Respond with exactly this JSON format (no markdown, just raw JSON):
     const text = data.content[0].text.trim();
     const angles = JSON.parse(text);
 
-    document.getElementById('ai-angles').innerHTML = angles.map(a => `
+    const aiHtml = angles.map(a => `
       <div class="ai-angle-item">
         <div class="ai-angle-headline">✦ ${a.headline}</div>
         <div class="ai-angle-body">${a.angle} <em style="color:var(--text-dim)">${a.questions}</em></div>
+      </div>
+    `).join('');
+    document.getElementById('ai-angles').innerHTML = aiHtml;
+
+    // Add to strip
+    const stripContent = document.getElementById('angles-strip-content');
+    stripContent.innerHTML += angles.map(a => `
+      <div class="strip-angle ai-angle">
+        <div class="sa-label">✦ AI · ${a.headline.split(':')[0]}</div>
+        <div class="sa-headline">${a.headline}</div>
+        <div class="sa-body">${a.angle}</div>
       </div>
     `).join('');
 
