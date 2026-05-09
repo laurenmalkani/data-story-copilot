@@ -594,6 +594,188 @@
     ::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 2px; }
 
     #file-input { display: none; }
+
+    /* ─── Editorial Intent panel ──────────────────────────── */
+    .intent-panel {
+      background: linear-gradient(135deg, rgba(124,106,247,0.06), rgba(247,106,143,0.04));
+      border: 1px solid rgba(124,106,247,0.18);
+      border-radius: 10px; padding: 14px;
+    }
+    .intent-status {
+      font-size: 0.62rem; font-weight: 700;
+      letter-spacing: 0.06em; padding: 2px 6px; border-radius: 4px;
+      background: var(--surface3); color: var(--text-dim);
+    }
+    .intent-status.controlled {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: white;
+    }
+    .intent-field { margin-bottom: 10px; }
+    .intent-field label {
+      display: block; font-size: 0.7rem; color: var(--text-muted);
+      margin-bottom: 4px; font-weight: 500;
+    }
+    .intent-field select,
+    .intent-field textarea {
+      width: 100%; background: var(--surface2);
+      border: 1px solid var(--border); border-radius: 6px;
+      padding: 7px 9px; font-size: 0.78rem;
+      color: var(--text); outline: none;
+      font-family: inherit; resize: vertical;
+    }
+    .intent-field select:focus,
+    .intent-field textarea:focus { border-color: var(--accent); }
+    .intent-field textarea { line-height: 1.4; }
+
+    .keyfield-chips {
+      display: flex; flex-wrap: wrap; gap: 4px;
+      max-height: 120px; overflow-y: auto;
+    }
+    .keyfield-chip {
+      font-size: 0.7rem; padding: 4px 9px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 12px; cursor: pointer; transition: all 0.15s;
+      color: var(--text-muted);
+    }
+    .keyfield-chip:hover { border-color: var(--accent); color: var(--text); }
+    .keyfield-chip.active {
+      background: rgba(124,106,247,0.15);
+      border-color: var(--accent); color: var(--accent);
+    }
+    .btn-show-prompt-trigger {
+      width: 100%; margin-top: 8px;
+      background: var(--surface2); border: 1px dashed var(--border);
+      border-radius: 6px; padding: 8px;
+      font-size: 0.72rem; color: var(--text-muted);
+      cursor: pointer; transition: all 0.15s;
+      display: inline-flex; justify-content: center;
+    }
+    .btn-show-prompt-trigger:hover {
+      border-color: var(--accent); color: var(--accent); border-style: solid;
+    }
+
+    /* ─── Show Prompt modal ───────────────────────────────── */
+    .prompt-modal-body {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 16px; max-height: 70vh; overflow: hidden;
+    }
+    .prompt-col {
+      display: flex; flex-direction: column; min-height: 0;
+      border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+    }
+    .prompt-col-header {
+      padding: 10px 14px; background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--text-muted);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .prompt-col-header.structured {
+      background: linear-gradient(135deg, rgba(124,106,247,0.15), rgba(247,106,143,0.08));
+      color: var(--text);
+    }
+    .prompt-col pre {
+      flex: 1; overflow: auto;
+      padding: 14px; margin: 0;
+      font-family: 'SF Mono', Menlo, Consolas, monospace;
+      font-size: 0.72rem; line-height: 1.5;
+      color: var(--text-muted);
+      white-space: pre-wrap; word-break: break-word;
+      background: var(--bg);
+    }
+    .prompt-col pre .intent-highlight {
+      background: rgba(124,106,247,0.18);
+      color: var(--text);
+      padding: 1px 3px; border-radius: 3px;
+    }
+    .prompt-modal { max-width: 1100px !important; width: 95vw; }
+
+    /* ─── Dataset Interrogation panel ─────────────────────── */
+    #interrogation-screen {
+      display: none; min-height: calc(100vh - 53px);
+      padding: 40px 32px; max-width: 1100px; margin: 0 auto;
+    }
+    .interrog-header { margin-bottom: 28px; }
+    .interrog-header h2 {
+      font-size: 1.6rem; font-weight: 700;
+      letter-spacing: -0.02em; margin-bottom: 6px;
+    }
+    .interrog-header .gradient {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .interrog-header p {
+      color: var(--text-muted); font-size: 0.92rem; line-height: 1.5;
+    }
+    .interrog-loading {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 14px; padding: 60px 0;
+      color: var(--text-muted);
+    }
+    .interrog-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+      margin-top: 16px;
+    }
+    .interrog-section h3 {
+      font-size: 0.74rem; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--text-dim);
+      margin-bottom: 12px; font-weight: 700;
+    }
+    .investigation-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 16px; margin-bottom: 10px;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .investigation-card:hover {
+      border-color: var(--accent);
+      background: rgba(124,106,247,0.04);
+      transform: translateY(-1px);
+    }
+    .inv-rank {
+      font-size: 0.65rem; color: var(--text-dim);
+      font-variant-numeric: tabular-nums; margin-bottom: 4px;
+    }
+    .inv-headline {
+      font-size: 0.92rem; font-weight: 600;
+      color: var(--text); line-height: 1.35; margin-bottom: 6px;
+    }
+    .inv-meta {
+      display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px;
+    }
+    .inv-tag {
+      font-size: 0.65rem; padding: 2px 7px; border-radius: 10px;
+      background: var(--surface3); color: var(--text-muted);
+    }
+    .inv-tag.chart {
+      background: rgba(124,106,247,0.15); color: var(--accent);
+    }
+    .inv-reason {
+      font-size: 0.78rem; color: var(--text-muted); line-height: 1.5;
+    }
+    .cant-answer-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-left: 3px solid #f7a86a;
+      border-radius: 8px; padding: 12px 14px; margin-bottom: 8px;
+    }
+    .cant-q {
+      font-size: 0.85rem; color: var(--text); line-height: 1.4; margin-bottom: 4px;
+    }
+    .cant-why {
+      font-size: 0.74rem; color: var(--text-muted); line-height: 1.4;
+    }
+    .interrog-actions {
+      display: flex; gap: 10px; margin-top: 28px;
+      justify-content: flex-end;
+    }
+    .btn-interrog-skip,
+    .btn-interrog-rerun {
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text-muted); padding: 10px 18px;
+      border-radius: 8px; font-size: 0.82rem; cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-interrog-skip:hover,
+    .btn-interrog-rerun:hover { border-color: var(--accent); color: var(--text); }
   </style>
 </head>
 <body>
@@ -633,6 +815,33 @@
     <div class="modal-actions">
       <button class="btn-modal-cancel" onclick="closeSettings()">Cancel</button>
       <button class="btn-modal-save" onclick="saveApiKey()">Save key</button>
+    </div>
+  </div>
+</div>
+
+<!-- Show Prompt Modal -->
+<div class="modal-overlay hidden" id="prompt-modal" onclick="if(event.target===this)closePromptModal()">
+  <div class="modal prompt-modal">
+    <h3>What gets sent to Claude</h3>
+    <p class="modal-desc">Generic prompts produce generic output. Editorial intent fields shape what the AI returns. Compare:</p>
+    <div class="prompt-modal-body">
+      <div class="prompt-col">
+        <div class="prompt-col-header">
+          <span>Generic prompt</span>
+          <span style="font-size:0.62rem;color:var(--text-dim);font-weight:400;text-transform:none;letter-spacing:0">no editorial control</span>
+        </div>
+        <pre id="prompt-baseline">—</pre>
+      </div>
+      <div class="prompt-col">
+        <div class="prompt-col-header structured">
+          <span>Your structured prompt</span>
+          <span style="font-size:0.62rem;font-weight:400;text-transform:none;letter-spacing:0;color:var(--accent3)">editorial intent injected</span>
+        </div>
+        <pre id="prompt-structured">—</pre>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="closePromptModal()">Close</button>
     </div>
   </div>
 </div>
@@ -705,6 +914,43 @@
         </div>
       </div>
       <div class="chart-canvas-wrap" id="chart-wrap">
+        <div id="interrogation-panel" style="display:none; padding:24px 28px; overflow:auto; height:100%;">
+          <div class="interrog-header">
+            <h2>What's <span class="gradient">worth investigating</span> in this data?</h2>
+            <p>Claude scanned the structure and surface — here's what stands out before you click anything. Pick an investigation or explore on your own.</p>
+          </div>
+          <div id="interrog-loading" class="interrog-loading">
+            <div class="spinner"></div>
+            <p>Claude is reading the data…</p>
+          </div>
+          <div id="interrog-content" style="display:none">
+            <div class="interrog-grid">
+              <div class="interrog-section">
+                <h3>★ Worth investigating</h3>
+                <div id="investigation-list"></div>
+              </div>
+              <div class="interrog-section">
+                <h3>⚠ Questions this data can't answer</h3>
+                <div id="cant-answer-list"></div>
+              </div>
+            </div>
+            <div class="interrog-actions">
+              <button class="btn-interrog-rerun" onclick="runInterrogation(true)">↻ Re-run with editorial intent</button>
+              <button class="btn-interrog-skip" onclick="dismissInterrogation()">Explore on my own →</button>
+            </div>
+          </div>
+          <div id="interrog-error" style="display:none; padding:30px 0; text-align:center;">
+            <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:14px" id="interrog-error-msg">—</p>
+            <button class="btn-interrog-skip" onclick="dismissInterrogation()">Continue without AI →</button>
+          </div>
+          <div id="interrog-nokey" style="display:none; padding:30px 0; text-align:center;">
+            <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:14px">Add your Claude API key to surface AI-driven investigations.</p>
+            <div style="display:flex; gap:10px; justify-content:center">
+              <button class="btn-modal-save" onclick="openSettings()" style="padding:10px 20px">Add API key</button>
+              <button class="btn-interrog-skip" onclick="dismissInterrogation()">Skip and explore →</button>
+            </div>
+          </div>
+        </div>
         <div class="chart-placeholder">
           <div class="icon">◈</div>
           <p>Select a column to explore</p>
@@ -722,6 +968,53 @@
     </main>
 
     <aside class="sidebar-right">
+      <div class="intent-panel" id="intent-panel">
+        <div class="sidebar-section-label" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0">
+          <span>Editorial Intent</span>
+          <span class="intent-status" id="intent-status">Generic</span>
+        </div>
+        <p style="font-size:0.7rem; color:var(--text-dim); margin: 8px 0 12px; line-height:1.45">
+          Tell the AI what you're looking for. Specificity changes the output.
+        </p>
+        <div class="intent-field">
+          <label>Audience</label>
+          <select id="intent-audience" onchange="onIntentChange()">
+            <option value="">— pick one —</option>
+            <option value="general public">General public</option>
+            <option value="policymakers">Policymakers</option>
+            <option value="technical specialists">Technical specialists</option>
+            <option value="newsroom peers">Newsroom peers</option>
+            <option value="local community">Local community</option>
+          </select>
+        </div>
+        <div class="intent-field">
+          <label>Editorial lens</label>
+          <select id="intent-lens" onchange="onIntentChange()">
+            <option value="">— pick one —</option>
+            <option value="concentration">Concentration (who dominates)</option>
+            <option value="change over time">Change over time</option>
+            <option value="inequality">Inequality / imbalance</option>
+            <option value="behavioral">Behavioral pattern</option>
+            <option value="structural">Structural / systemic</option>
+          </select>
+        </div>
+        <div class="intent-field">
+          <label>Question I'm answering</label>
+          <textarea id="intent-question" rows="2" placeholder="e.g. Which neighborhoods are most exposed but least protected?" oninput="onIntentChange()"></textarea>
+        </div>
+        <div class="intent-field">
+          <label>What is this data?</label>
+          <textarea id="intent-context" rows="2" placeholder="e.g. Eviction filings in Baltimore 2019-2024, scraped from district court records" oninput="onIntentChange()"></textarea>
+        </div>
+        <div class="intent-field" id="intent-keyfields-wrap" style="display:none">
+          <label>Key fields for the story</label>
+          <div id="intent-keyfields" class="keyfield-chips"></div>
+        </div>
+        <button class="btn-show-prompt-trigger" onclick="openPromptModal()" id="btn-show-prompt">
+          Show prompt sent to Claude →
+        </button>
+      </div>
+
       <div>
         <div class="sidebar-section-label">Statistics</div>
         <div class="stat-grid" id="stat-grid">
@@ -793,10 +1086,100 @@ let state = {
   mapValueCol: null,
   binMethod: 'quantile',
   colorScheme: 'risk',
+  // Editorial intent — drives the AI prompt
+  intent: {
+    audience: '',
+    lens: '',
+    question: '',
+    context: '',
+    keyFields: [],
+  },
+  // Last prompts (for the Show Prompt teaching feature)
+  lastPrompt: '',
+  lastBaselinePrompt: '',
+  // Interrogation results
+  interrogation: null,
 };
 let chart = null;
 let topoCache = null;
 let countyNameCache = null;
+
+// ─── Claude API helper ────────────────────────────────────────────────────────
+async function callClaude(promptOrMessages, opts = {}) {
+  const apiKey = localStorage.getItem('claude_api_key');
+  if (!apiKey) {
+    const e = new Error('No API key configured. Open Settings (gear icon top-right) to add your Anthropic API key.');
+    e.code = 'NO_KEY';
+    throw e;
+  }
+  const messages = typeof promptOrMessages === 'string'
+    ? [{ role: 'user', content: promptOrMessages }]
+    : promptOrMessages;
+  const body = {
+    model: opts.model || 'claude-haiku-4-5-20251001',
+    max_tokens: opts.max_tokens || 1500,
+    messages,
+  };
+  if (opts.system) body.system = opts.system;
+
+  let res;
+  try {
+    res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify(body),
+    });
+  } catch (err) {
+    throw new Error(`Network error reaching Anthropic: ${err.message}`);
+  }
+
+  if (!res.ok) {
+    let detail = '';
+    try {
+      const j = await res.json();
+      detail = j.error?.message || j.error?.type || JSON.stringify(j);
+    } catch (_) {
+      try { detail = await res.text(); } catch (_) {}
+    }
+    if (res.status === 401) throw new Error('Invalid API key (401) — open Settings and check it starts with sk-ant-');
+    if (res.status === 429) throw new Error('Rate limited or out of credits (429) — check your Anthropic console.');
+    if (res.status === 400 && /credit|balance/i.test(detail)) throw new Error('Insufficient API credits — check your Anthropic console.');
+    throw new Error(`Claude API ${res.status}: ${detail}`);
+  }
+
+  const data = await res.json();
+  const text = data.content?.[0]?.text;
+  if (!text) throw new Error('Empty response from Claude');
+  return { text, raw: data };
+}
+
+function parseClaudeJSON(text) {
+  const cleaned = text.trim()
+    .replace(/^```(?:json)?\s*/i, '')
+    .replace(/\s*```\s*$/i, '');
+  return JSON.parse(cleaned);
+}
+
+// Build a compact textual snapshot of the dataset for AI prompts.
+function buildDatasetSnapshot(maxSampleRows = 8) {
+  if (!state.data) return '';
+  const cols = state.columns.map(c => `  - ${c.name} (${c.type})`).join('\n');
+  const sample = state.data.slice(0, maxSampleRows)
+    .map(r => state.columns.map(c => `${c.name}=${JSON.stringify(r[c.name])}`).join(', '))
+    .map((line, i) => `  row ${i + 1}: ${line}`)
+    .join('\n');
+  return `Dataset: ${state.filename}
+Total rows: ${state.data.length}
+Columns:
+${cols}
+Sample rows:
+${sample}`;
+}
 
 // ─── Sample Data ──────────────────────────────────────────────────────────────
 const SAMPLES = {
@@ -1026,6 +1409,17 @@ function processData(data, filename) {
   document.getElementById('nav-crumb').style.display = '';
   document.getElementById('nav-crumb').textContent = filename;
   updateApiStatus();
+
+  // Reset Editorial Intent for the new dataset
+  ['intent-audience', 'intent-lens', 'intent-question', 'intent-context'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  state.intent = { audience: '', lens: '', question: '', context: '', keyFields: [] };
+  populateIntentKeyFields();
+
+  // Interrogate the dataset with AI in the background (if key present)
+  runInterrogation();
   document.getElementById('filename').textContent = filename;
   document.getElementById('row-count').textContent = data.length.toLocaleString();
   document.getElementById('col-count').textContent = state.columns.length;
@@ -1045,13 +1439,22 @@ function processData(data, filename) {
     list.appendChild(el);
   });
 
-  const firstNum = state.columns.find(c => c.type === 'numeric');
-  if (firstNum) selectColumn(firstNum.name);
-  else if (state.columns.length) selectColumn(state.columns[0].name);
+  // Don't auto-select a column on upload — let the Interrogation panel surface
+  // investigations first ("let the data speak"). If user dismisses the panel
+  // without picking one, dismissInterrogation() will auto-select.
 }
 
 // ─── Column Selection ─────────────────────────────────────────────────────────
 function selectColumn(colName) {
+  // Hide the interrogation panel if it's still visible (e.g. user clicked a
+  // column in the sidebar instead of an investigation card)
+  const panel = document.getElementById('interrogation-panel');
+  if (panel && panel.style.display !== 'none') {
+    panel.style.display = 'none';
+    const placeholder = document.querySelector('#chart-wrap .chart-placeholder');
+    if (placeholder) placeholder.style.display = '';
+  }
+
   state.activeColumn = colName;
   const colInfo = state.columns.find(c => c.name === colName);
   const stats = getStats(colName, state.data, colInfo.type);
@@ -1622,7 +2025,6 @@ function goHome() {
   document.getElementById('upload-screen').style.display = 'flex';
   document.getElementById('upload-fab').style.display = 'none';
   document.getElementById('btn-back').style.display = 'none';
-  document.getElementById('nav-sep').style.display = 'none';
   document.getElementById('nav-crumb').style.display = 'none';
   document.getElementById('file-input').value = '';
 }
@@ -1826,71 +2228,295 @@ function updateStoryAngles(col, stats, type) {
     `).join('');
   }
 
-  // Show/hide AI button in strip
-  const showAI = !!(apiKey && type === 'numeric');
-  document.getElementById('btn-ai-angles-strip').style.display = showAI ? 'flex' : 'none';
+  // Show/hide AI button in strip — available for any column type
+  const showAI = !!apiKey;
+  document.getElementById('btn-ai-angles-strip').style.display = showAI ? 'inline-flex' : 'none';
+}
+
+// ─── Dataset Interrogation (Features A + B) ─────────────────────────────────
+async function runInterrogation(forceRerun = false) {
+  const panel = document.getElementById('interrogation-panel');
+  const placeholder = document.querySelector('#chart-wrap .chart-placeholder');
+  const loading = document.getElementById('interrog-loading');
+  const content = document.getElementById('interrog-content');
+  const errorEl = document.getElementById('interrog-error');
+  const noKey = document.getElementById('interrog-nokey');
+
+  // Reset UI
+  panel.style.display = 'block';
+  if (placeholder) placeholder.style.display = 'none';
+  loading.style.display = 'flex';
+  content.style.display = 'none';
+  errorEl.style.display = 'none';
+  noKey.style.display = 'none';
+
+  if (!localStorage.getItem('claude_api_key')) {
+    loading.style.display = 'none';
+    noKey.style.display = 'block';
+    return;
+  }
+
+  const snap = buildDatasetSnapshot(10);
+  const i = state.intent;
+  const intentLines = [];
+  if (i.audience) intentLines.push(`Audience: ${i.audience}`);
+  if (i.lens) intentLines.push(`Editorial lens: ${i.lens}`);
+  if (i.question) intentLines.push(`Question I'm answering: ${i.question}`);
+  if (i.context) intentLines.push(`What this data is: ${i.context}`);
+  if (i.keyFields?.length) intentLines.push(`Key fields: ${i.keyFields.join(', ')}`);
+  const intentBlock = intentLines.length ? `\n\nEditorial intent:\n${intentLines.join('\n')}` : '';
+
+  const prompt = `You are an editorial data interrogator helping a journalist before they pick an angle.
+
+Look at this dataset and surface what's WORTH INVESTIGATING — the unexpected relationships, distributions, or contrasts that an experienced reporter would dig into. Don't list obvious things ("X is the average"). Find tension.
+
+Also flag what this data CAN'T answer — questions a reader might naturally ask but the columns simply don't support.
+
+${snap}${intentBlock}
+
+Return raw JSON only, no markdown:
+{
+  "investigations": [
+    {
+      "headline": "Short, specific finding (e.g. 'Counties with high turnout cluster in low-income areas')",
+      "primaryColumn": "exact_column_name",
+      "secondaryColumn": "exact_column_name_or_null",
+      "chartType": "bar | histogram | scatter | line | map | boxplot",
+      "reason": "1-2 sentences. Why this matters editorially."
+    }
+  ],
+  "cantAnswer": [
+    {
+      "question": "A question a reader would ask",
+      "why": "Why this dataset can't answer it (missing column, wrong granularity, time range, etc.)"
+    }
+  ]
+}
+
+Provide 4 investigations and 3 cantAnswer items. primaryColumn must match a real column name from the snapshot above.`;
+
+  try {
+    const { text } = await callClaude(prompt, { max_tokens: 2000 });
+    const result = parseClaudeJSON(text);
+    state.interrogation = result;
+    renderInterrogation(result);
+    loading.style.display = 'none';
+    content.style.display = 'block';
+  } catch (err) {
+    loading.style.display = 'none';
+    errorEl.style.display = 'block';
+    document.getElementById('interrog-error-msg').textContent = `Couldn't run interrogation: ${err.message}`;
+  }
+}
+
+function renderInterrogation(result) {
+  const invList = document.getElementById('investigation-list');
+  const cantList = document.getElementById('cant-answer-list');
+
+  invList.innerHTML = (result.investigations || []).map((inv, i) => {
+    const cols = [inv.primaryColumn, inv.secondaryColumn].filter(Boolean);
+    return `
+      <div class="investigation-card" onclick='loadInvestigation(${JSON.stringify(inv).replace(/'/g, "&apos;")})'>
+        <div class="inv-rank">Investigation ${i + 1}</div>
+        <div class="inv-headline">${escapeHtml(inv.headline || '')}</div>
+        <div class="inv-meta">
+          ${cols.map(c => `<span class="inv-tag">${escapeHtml(c)}</span>`).join('')}
+          ${inv.chartType ? `<span class="inv-tag chart">${escapeHtml(inv.chartType)}</span>` : ''}
+        </div>
+        <div class="inv-reason">${escapeHtml(inv.reason || '')}</div>
+      </div>
+    `;
+  }).join('') || `<div style="color:var(--text-dim); font-size:0.82rem">No investigations surfaced.</div>`;
+
+  cantList.innerHTML = (result.cantAnswer || []).map(c => `
+    <div class="cant-answer-card">
+      <div class="cant-q">${escapeHtml(c.question || '')}</div>
+      <div class="cant-why">${escapeHtml(c.why || '')}</div>
+    </div>
+  `).join('') || `<div style="color:var(--text-dim); font-size:0.82rem">No gaps surfaced.</div>`;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function loadInvestigation(inv) {
+  // Map AI's chartType string to the app's internal types
+  const chartMap = {
+    histogram: 'histogram',
+    bar: 'bar',
+    line: 'line',
+    area: 'area',
+    scatter: 'scatter',
+    bubble: 'bubble',
+    boxplot: 'boxplot',
+    pie: 'pie',
+    map: 'map',
+  };
+  const requestedChart = chartMap[(inv.chartType || '').toLowerCase()] || null;
+
+  const primary = inv.primaryColumn;
+  const secondary = inv.secondaryColumn;
+
+  if (!primary) { dismissInterrogation(); return; }
+
+  // Confirm the column exists
+  const colExists = state.columns.some(c => c.name === primary);
+  if (!colExists) { dismissInterrogation(); return; }
+
+  // Set chart type if requested AND valid for this column type
+  if (requestedChart) state.chartType = requestedChart;
+
+  // For scatter/bubble, pre-set X (primary) and Y (secondary) before selecting
+  if ((requestedChart === 'scatter' || requestedChart === 'bubble') && secondary
+      && state.columns.some(c => c.name === secondary)) {
+    state.activeXCol = primary;
+    state.activeYCol = secondary;
+  }
+
+  dismissInterrogation();
+  selectColumn(primary);
+}
+
+function dismissInterrogation() {
+  document.getElementById('interrogation-panel').style.display = 'none';
+  const placeholder = document.querySelector('#chart-wrap .chart-placeholder');
+  if (placeholder) placeholder.style.display = '';
+  // Auto-select a column if none chosen yet, so the user lands on a working chart
+  if (!state.activeColumn && state.columns.length) {
+    const firstNum = state.columns.find(c => c.type === 'numeric');
+    selectColumn((firstNum || state.columns[0]).name);
+  }
+}
+
+// ─── Editorial Intent panel ───────────────────────────────────────────────────
+function onIntentChange() {
+  state.intent.audience = document.getElementById('intent-audience').value;
+  state.intent.lens     = document.getElementById('intent-lens').value;
+  state.intent.question = document.getElementById('intent-question').value.trim();
+  state.intent.context  = document.getElementById('intent-context').value.trim();
+  // keyFields kept in sync via toggleKeyField
+  updateIntentStatus();
+}
+
+function updateIntentStatus() {
+  const i = state.intent;
+  const filledCount = [i.audience, i.lens, i.question, i.context].filter(Boolean).length
+    + (i.keyFields?.length ? 1 : 0);
+  const el = document.getElementById('intent-status');
+  if (filledCount === 0) {
+    el.textContent = 'Generic';
+    el.classList.remove('controlled');
+  } else if (filledCount < 3) {
+    el.textContent = `Partial · ${filledCount}/5`;
+    el.classList.remove('controlled');
+  } else {
+    el.textContent = `Controlled · ${filledCount}/5`;
+    el.classList.add('controlled');
+  }
+}
+
+function populateIntentKeyFields() {
+  const container = document.getElementById('intent-keyfields');
+  const wrap = document.getElementById('intent-keyfields-wrap');
+  if (!state.columns.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  state.intent.keyFields = []; // reset on new dataset
+  container.innerHTML = state.columns.map(c =>
+    `<span class="keyfield-chip" data-col="${c.name}" onclick="toggleKeyField('${c.name.replace(/'/g, "\\'")}', this)">${c.name}</span>`
+  ).join('');
+  updateIntentStatus();
+}
+
+function toggleKeyField(col, el) {
+  const i = state.intent.keyFields.indexOf(col);
+  if (i >= 0) {
+    state.intent.keyFields.splice(i, 1);
+    el.classList.remove('active');
+  } else {
+    state.intent.keyFields.push(col);
+    el.classList.add('active');
+  }
+  updateIntentStatus();
+}
+
+// ─── Show Prompt modal ────────────────────────────────────────────────────────
+function openPromptModal() {
+  // Build current prompts (in case user hasn't generated angles yet)
+  const baseline = state.lastBaselinePrompt || buildBaselinePrompt();
+  const structured = state.lastPrompt || buildStructuredPrompt();
+
+  document.getElementById('prompt-baseline').textContent = baseline;
+  document.getElementById('prompt-structured').innerHTML = highlightIntentInPrompt(structured);
+  document.getElementById('prompt-modal').classList.remove('hidden');
+}
+
+function closePromptModal() {
+  document.getElementById('prompt-modal').classList.add('hidden');
+}
+
+// Highlight the editorial-intent block inside the structured prompt so the
+// teaching moment is visually obvious.
+function highlightIntentInPrompt(text) {
+  const escaped = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+  return escaped.replace(
+    /(Editorial intent:[\s\S]*?)(?=\n\nRespond|$)/,
+    '<span class="intent-highlight">$1</span>'
+  );
 }
 
 // ─── AI Story Angles (Claude API) ─────────────────────────────────────────────
-async function generateAIAngles() {
-  const apiKey = localStorage.getItem('claude_api_key');
-  if (!apiKey) { openSettings(); return; }
 
+// Build the BASELINE (generic, no editorial intent) prompt — used for the
+// "Show Prompt" comparison so participants can see what changes when they
+// add structure.
+function buildBaselinePrompt() {
+  const snap = buildDatasetSnapshot();
+  return `Generate 3-5 story angles for this dataset.
+
+${snap}
+
+Respond as JSON: [{"lens":"...","headline":"...","claim":"...","evidence":"...","deeper":"...","alternative":"..."}]`;
+}
+
+// Build the STRUCTURED prompt — incorporates editorial intent fields.
+function buildStructuredPrompt() {
+  const snap = buildDatasetSnapshot();
+  const i = state.intent;
   const col = state.activeColumn;
-  const colInfo = state.columns.find(c => c.name === col);
-  const stats = getStats(col, state.data, colInfo.type);
 
-  const btn = document.getElementById('btn-ai-angles-strip');
-  btn.disabled = true;
-  btn.textContent = '✦ Generating…';
+  const intentLines = [];
+  if (i.audience) intentLines.push(`Audience: ${i.audience}`);
+  if (i.lens) intentLines.push(`Editorial lens: ${i.lens}`);
+  if (i.question) intentLines.push(`Question I'm trying to answer: ${i.question}`);
+  if (i.context) intentLines.push(`What this data is: ${i.context}`);
+  if (i.keyFields?.length) intentLines.push(`Key fields for the story: ${i.keyFields.join(', ')}`);
+  if (col) intentLines.push(`Column currently in focus: ${col}`);
+  const intentBlock = intentLines.length
+    ? `\n\nEditorial intent:\n${intentLines.join('\n')}`
+    : '\n\n(No editorial intent provided — using generic framing.)';
 
-  // Build compact data summary
-  const summary = {
-    dataset: state.filename,
-    column: col,
-    rows: state.data.length,
-    mean: fmt(stats.mean),
-    median: fmt(stats.median),
-    min: fmt(stats.min),
-    max: fmt(stats.max),
-    outliers: stats.outliers.length,
-    nulls: stats.nullCount,
-    chartType: state.chartType,
-    otherColumns: state.columns.filter(c => c.name !== col).map(c => c.name).slice(0, 10).join(', '),
-  };
-
-  const prompt = `You are not a data analyst. You are an editorial data storyteller.
+  return `You are not a data analyst. You are an editorial data storyteller.
 
 Your job is to produce narrative angles, not observations.
 
-Given a dataset, generate 3–5 distinct story angles. Each angle must:
+Generate 3-5 distinct story angles. Each angle must:
 1. Make a clear, specific claim (not a description)
 2. Be defensible with the data (cite what supports it)
-3. Reflect a perspective or framing (economic, behavioral, structural, inequity, etc.)
-4. Avoid generic observations (e.g. "there is an outlier", "this value is high")
+3. Reflect a perspective or framing
+4. Avoid generic observations (e.g. "there is an outlier")
 5. Be written as a headline or thesis, not a question
 
-Prioritize angles that reveal tension, contradiction, or imbalance — challenge obvious interpretations — surface something non-obvious but defensible.
+Prioritize angles that reveal tension, contradiction, or imbalance. Challenge obvious interpretations. Surface something non-obvious but defensible. Avoid "analysis voice" — write with conviction.
 
-Avoid "analysis voice." Do not say "this suggests", "this may indicate", or "interesting trend." Write with conviction, like a journalist or strategist.
+If an editorial lens is specified below, every angle should be filtered through that lens. Otherwise, vary across these lenses: Concentration, Change over time, Inequality, Behavioral pattern, Structural/systemic.
 
-Each angle must fall into a different narrative lens from this list:
-- Concentration (who dominates vs who doesn't)
-- Change over time (what is shifting and why)
-- Inequality or imbalance
-- Behavioral pattern (what people/systems are doing)
-- Structural/systemic explanation (what is causing this underneath)
+${snap}${intentBlock}
 
-Dataset: ${summary.dataset}
-Column being explored: "${summary.column}"
-Total rows: ${summary.rows}
-Stats: mean=${summary.mean}, median=${summary.median}, min=${summary.min}, max=${summary.max}
-Outliers: ${summary.outliers} values beyond 1.5× IQR
-Missing values: ${summary.nulls}
-Other columns available: ${summary.otherColumns}
-Current visualization: ${summary.chartType}
-
-Respond with exactly this JSON format (no markdown, just raw JSON):
+Respond with raw JSON only (no markdown). Format:
 [
   {
     "lens": "Concentration",
@@ -1901,34 +2527,25 @@ Respond with exactly this JSON format (no markdown, just raw JSON):
     "alternative": "..."
   }
 ]`;
+}
+
+async function generateAIAngles() {
+  if (!localStorage.getItem('claude_api_key')) { openSettings(); return; }
+  if (!state.data) return;
+
+  const btn = document.getElementById('btn-ai-angles-strip');
+  if (btn) { btn.disabled = true; btn.textContent = '✦ Generating…'; }
+
+  // Build & store both prompts so the Show Prompt feature can render them.
+  const structured = buildStructuredPrompt();
+  const baseline = buildBaselinePrompt();
+  state.lastPrompt = structured;
+  state.lastBaselinePrompt = baseline;
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json',
-        'anthropic-dangerous-direct-browser-access': 'true',
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 1500,
-        messages: [{ role: 'user', content: prompt }],
-      }),
-    });
+    const { text } = await callClaude(structured, { max_tokens: 1800 });
+    const angles = parseClaudeJSON(text);
 
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error?.message || 'API error');
-    }
-
-    const data = await res.json();
-    const raw = data.content[0].text.trim();
-    const text = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/i, '');
-    const angles = JSON.parse(text);
-
-    // Add to strip
     const stripContent = document.getElementById('angles-strip-content');
     const existingCount = stripContent.querySelectorAll('.strip-angle').length;
     stripContent.innerHTML += angles.map((a, i) => `
@@ -1939,14 +2556,17 @@ Respond with exactly this JSON format (no markdown, just raw JSON):
           <span class="sa-type-label">✦ ${a.lens || 'AI Insight'}</span>
           <span class="sa-type-tag">AI</span>
         </div>
-        <div class="sa-headline">${a.headline}</div>
-        <div class="sa-body">${a.claim}</div>
-        <div class="sa-evidence" style="margin-top:6px;font-size:11px;color:var(--text-dim);border-left:2px solid var(--accent);padding-left:8px">${a.evidence}</div>
-        <div class="sa-deeper" style="margin-top:6px;font-size:11px;color:var(--text-muted,#6a6a7a)"><strong style="color:var(--text-dim)">Deeper:</strong> ${a.deeper}</div>
-        <div class="sa-alt" style="margin-top:4px;font-size:11px;color:var(--text-muted,#6a6a7a)"><strong style="color:var(--text-dim)">Alt take:</strong> ${a.alternative}</div>
+        <div class="sa-headline">${a.headline || ''}</div>
+        <div class="sa-body">${a.claim || ''}</div>
+        ${a.evidence ? `<div class="sa-evidence" style="margin-top:6px;font-size:11px;color:var(--text-dim);border-left:2px solid var(--accent);padding-left:8px">${a.evidence}</div>` : ''}
+        ${a.deeper ? `<div class="sa-deeper" style="margin-top:6px;font-size:11px;color:var(--text-muted,#6a6a7a)"><strong style="color:var(--text-dim)">Deeper:</strong> ${a.deeper}</div>` : ''}
+        ${a.alternative ? `<div class="sa-alt" style="margin-top:4px;font-size:11px;color:var(--text-muted,#6a6a7a)"><strong style="color:var(--text-dim)">Alt take:</strong> ${a.alternative}</div>` : ''}
       </div>
     `).join('');
 
+    // Surface the "Show Prompt" button now that we have prompts to show.
+    const sp = document.getElementById('btn-show-prompt');
+    if (sp) sp.style.display = 'inline-flex';
   } catch (err) {
     const stripContent = document.getElementById('angles-strip-content');
     if (stripContent) {
@@ -1955,12 +2575,11 @@ Respond with exactly this JSON format (no markdown, just raw JSON):
         <div class="strip-angle">
           <div class="sa-num">0${existingCount + 1}</div>
           <div class="sa-type-row"><div class="sa-dot" style="background:#ff4d4d"></div><span class="sa-type-label">AI Error</span></div>
-          <div class="sa-body">${err.message.includes('401') ? 'Invalid API key — check your key in AI Settings.' : err.message}</div>
+          <div class="sa-body" style="word-break:break-word">${err.message}</div>
         </div>`;
     }
   } finally {
-    btn.disabled = false;
-    btn.textContent = '✦ Generate AI story angles';
+    if (btn) { btn.disabled = false; btn.textContent = '✦ Generate AI angles'; }
   }
 }
 
