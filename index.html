@@ -143,6 +143,14 @@
       font-size: 0.8rem; color: var(--text-muted); cursor: pointer; transition: all 0.15s;
     }
     .sample-chip:hover { border-color: var(--accent); color: var(--text); }
+    .sample-chip.loading {
+      border-color: var(--accent); color: var(--accent);
+      background: rgba(124,106,247,0.08);
+    }
+    .sample-chip.error {
+      border-color: #f7a86a; color: #f7a86a;
+      background: rgba(247,168,106,0.08);
+    }
 
     /* Workspace */
     #workspace { display: none; height: calc(100vh - 53px); overflow: hidden; }
@@ -595,6 +603,100 @@
 
     #file-input { display: none; }
 
+    /* ─── Chat sidebar (Refine your data) ─────────────────── */
+    .chat-sidebar {
+      display: flex; flex-direction: column;
+      padding: 16px; gap: 12px;
+    }
+    .chat-header { flex-shrink: 0; }
+    .chat-sub {
+      font-size: 0.7rem; color: var(--text-dim);
+      line-height: 1.45; margin-top: 4px;
+    }
+    .chat-messages {
+      flex: 1; overflow-y: auto;
+      display: flex; flex-direction: column; gap: 10px;
+      padding: 4px 2px;
+      min-height: 100px;
+    }
+    .chat-empty {
+      text-align: center; padding: 24px 8px;
+      color: var(--text-dim);
+    }
+    .chat-empty em { color: var(--text-muted); font-style: italic; }
+    .chat-msg {
+      padding: 10px 12px; border-radius: 10px;
+      font-size: 0.78rem; line-height: 1.5;
+      word-break: break-word;
+    }
+    .chat-msg.user {
+      background: var(--surface3); color: var(--text);
+      align-self: flex-end; max-width: 92%;
+      border-bottom-right-radius: 3px;
+    }
+    .chat-msg.assistant {
+      background: var(--surface2); color: var(--text-muted);
+      align-self: flex-start; max-width: 95%;
+      border-bottom-left-radius: 3px;
+      border-left: 2px solid var(--accent);
+    }
+    .chat-msg.thinking { color: var(--text-dim); font-style: italic; }
+    .chat-msg.error { color: #f7a86a; border-left-color: #f7a86a; }
+    .chat-input-wrap {
+      display: flex; gap: 8px; align-items: flex-end;
+      flex-shrink: 0;
+    }
+    .chat-input-wrap textarea {
+      flex: 1; background: var(--surface2);
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 8px 10px; font-size: 0.8rem;
+      color: var(--text); outline: none;
+      font-family: inherit; resize: none; line-height: 1.4;
+    }
+    .chat-input-wrap textarea:focus { border-color: var(--accent); }
+    .chat-send {
+      width: 34px; height: 34px;
+      background: var(--accent); border: none;
+      border-radius: 8px; color: white;
+      font-size: 1rem; cursor: pointer;
+      transition: opacity 0.15s; flex-shrink: 0;
+    }
+    .chat-send:hover { opacity: 0.85; }
+    .chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-generate-trends {
+      flex-shrink: 0;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: white; border: none;
+      padding: 11px; border-radius: 8px;
+      font-size: 0.82rem; font-weight: 500;
+      cursor: pointer; transition: opacity 0.15s;
+    }
+    .btn-generate-trends:hover { opacity: 0.88; }
+    .btn-generate-trends:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ─── Top-3 insights strip (colored, clickable) ───────── */
+    .strip-angle.insight-clickable { cursor: pointer; transition: background 0.15s, transform 0.15s; }
+    .strip-angle.insight-clickable:hover { transform: translateY(-2px); }
+    .strip-angle.insight-clickable.active {
+      background: rgba(255,255,255,0.04);
+      box-shadow: inset 4px 0 0 0 currentColor;
+    }
+    .strip-angle.color-0 { color: var(--accent); }
+    .strip-angle.color-1 { color: var(--accent2); }
+    .strip-angle.color-2 { color: var(--accent3); }
+    .strip-angle.color-0 .sa-dot,
+    .strip-angle.color-0 .sa-type-label { background-color: var(--accent); color: var(--accent); }
+    .strip-angle.color-1 .sa-dot,
+    .strip-angle.color-1 .sa-type-label { background-color: var(--accent2); color: var(--accent2); }
+    .strip-angle.color-2 .sa-dot,
+    .strip-angle.color-2 .sa-type-label { background-color: var(--accent3); color: var(--accent3); }
+    .strip-angle.color-0 .sa-dot { background: var(--accent); }
+    .strip-angle.color-1 .sa-dot { background: var(--accent2); }
+    .strip-angle.color-2 .sa-dot { background: var(--accent3); }
+    .strip-angle.color-0 .sa-type-label { color: var(--accent); }
+    .strip-angle.color-1 .sa-type-label { color: var(--accent2); }
+    .strip-angle.color-2 .sa-type-label { color: var(--accent3); }
+
     /* ─── Editorial Intent panel ──────────────────────────── */
     .intent-panel {
       background: linear-gradient(135deg, rgba(124,106,247,0.06), rgba(247,106,143,0.04));
@@ -690,6 +792,69 @@
     }
     .prompt-modal { max-width: 1100px !important; width: 95vw; }
 
+    /* ─── "All investigations" sidebar button ─────────────── */
+    .btn-show-all-inv {
+      width: 100%; padding: 10px 12px;
+      background: linear-gradient(135deg, rgba(124,106,247,0.12), rgba(247,106,143,0.06));
+      border: 1px solid rgba(124,106,247,0.3);
+      border-radius: 8px;
+      color: var(--accent);
+      font-size: 0.78rem; font-weight: 500;
+      text-align: left;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .btn-show-all-inv:hover {
+      background: linear-gradient(135deg, rgba(124,106,247,0.2), rgba(247,106,143,0.1));
+      border-color: var(--accent);
+      color: var(--text);
+    }
+
+    /* ─── Investigation details banner (after expand) ─────── */
+    .inv-details {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 14px 20px;
+      background: linear-gradient(135deg, rgba(124,106,247,0.08), rgba(247,106,143,0.04));
+      border-bottom: 1px solid var(--border);
+    }
+    .btn-back-inv {
+      flex-shrink: 0; width: 32px; height: 32px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text-muted);
+      font-size: 1rem; cursor: pointer; transition: all 0.15s;
+    }
+    .btn-back-inv:hover { border-color: var(--accent); color: var(--text); }
+    .btn-back-inv-text {
+      flex-shrink: 0; align-self: flex-start;
+      background: transparent; border: none;
+      color: var(--accent); font-size: 0.74rem;
+      cursor: pointer; padding: 6px 8px;
+      transition: opacity 0.15s;
+    }
+    .btn-back-inv-text:hover { opacity: 0.7; }
+    .inv-details-text { flex: 1; min-width: 0; }
+    .inv-details-rank {
+      font-size: 0.65rem; color: var(--text-dim);
+      text-transform: uppercase; letter-spacing: 0.08em;
+      margin-bottom: 3px;
+    }
+    .inv-details-headline {
+      font-size: 0.95rem; font-weight: 600;
+      color: var(--text); line-height: 1.35; margin-bottom: 4px;
+    }
+    .inv-details-reason {
+      font-size: 0.78rem; color: var(--text-muted);
+      line-height: 1.5; margin-bottom: 8px;
+    }
+    .inv-details-bullets {
+      margin: 6px 0 0; padding-left: 18px;
+      list-style: disc;
+    }
+    .inv-details-bullets li {
+      font-size: 0.74rem; color: var(--text-muted);
+      line-height: 1.5; margin-bottom: 3px;
+    }
+    .inv-details-bullets li::marker { color: var(--accent); }
+
     /* ─── Dataset Interrogation panel ─────────────────────── */
     #interrogation-screen {
       display: none; min-height: calc(100vh - 53px);
@@ -723,7 +888,7 @@
     }
     .investigation-card {
       background: var(--surface); border: 1px solid var(--border);
-      border-radius: 10px; padding: 16px; margin-bottom: 10px;
+      border-radius: 10px; padding: 14px 16px 12px; margin-bottom: 12px;
       cursor: pointer; transition: all 0.15s;
     }
     .investigation-card:hover {
@@ -731,6 +896,22 @@
       background: rgba(124,106,247,0.04);
       transform: translateY(-1px);
     }
+    .inv-chart {
+      height: 112px; margin: 10px 0 8px;
+      background: var(--bg); border-radius: 6px;
+      padding: 6px 8px; position: relative;
+    }
+    .inv-chart canvas { width: 100% !important; height: 100% !important; }
+    .inv-chart-empty {
+      display:flex; align-items:center; justify-content:center;
+      height:100%; color:var(--text-dim); font-size:0.7rem;
+    }
+    .inv-expand-hint {
+      font-size: 0.65rem; color: var(--text-dim);
+      text-transform: uppercase; letter-spacing: 0.08em;
+      margin-top: 6px; opacity: 0.6;
+    }
+    .investigation-card:hover .inv-expand-hint { opacity: 1; color: var(--accent); }
     .inv-rank {
       font-size: 0.65rem; color: var(--text-dim);
       font-variant-numeric: tabular-nums; margin-bottom: 4px;
@@ -863,9 +1044,9 @@
 
   <div class="sample-datasets">
     <span class="sample-label">Try a sample dataset</span>
-    <span class="sample-chip" onclick="loadSample('weather')">🌡 Weather trends</span>
-    <span class="sample-chip" onclick="loadSample('elections')">🗳 Election results</span>
-    <span class="sample-chip" onclick="loadSample('climate')">🌎 Climate risk by state</span>
+    <span class="sample-chip" data-sample="disasters" onclick="loadSample('disasters')" title="Last 200 federal disaster declarations from the FEMA OpenFEMA API">🌀 FEMA disasters</span>
+    <span class="sample-chip" data-sample="climate" onclick="loadSample('climate')" title="Baltimore daily climate 2019-2024 from Copernicus ERA5 (via Open-Meteo)">🌎 Climate (Copernicus)</span>
+    <span class="sample-chip" data-sample="earthquakes" onclick="loadSample('earthquakes')" title="Global M4.5+ earthquakes past 30 days from USGS">🌐 USGS earthquakes</span>
   </div>
 </div>
 
@@ -883,6 +1064,9 @@
           </div>
         </div>
       </div>
+      <button id="btn-show-all-investigations" class="btn-show-all-inv" onclick="showInterrogation()" style="display:none">
+        ✦ All investigations
+      </button>
       <div>
         <div class="sidebar-section-label">Columns</div>
         <div class="column-list" id="column-list"></div>
@@ -890,6 +1074,16 @@
     </aside>
 
     <main class="chart-area">
+      <div id="investigation-details" class="inv-details" style="display:none">
+        <button class="btn-back-inv" onclick="showInterrogation()" title="Back to all investigations">←</button>
+        <div class="inv-details-text">
+          <div class="inv-details-rank" id="inv-details-rank">Investigation 1</div>
+          <div class="inv-details-headline" id="inv-details-headline">—</div>
+          <div class="inv-details-reason" id="inv-details-reason">—</div>
+          <ul class="inv-details-bullets" id="inv-details-bullets"></ul>
+        </div>
+        <button class="btn-back-inv-text" onclick="showInterrogation()">All investigations →</button>
+      </div>
       <div class="chart-toolbar">
         <span class="toolbar-label">Chart</span>
         <div class="chart-type-tabs" id="chart-tabs"></div>
@@ -967,106 +1161,26 @@
       </div>
     </main>
 
-    <aside class="sidebar-right">
-      <div class="intent-panel" id="intent-panel">
-        <div class="sidebar-section-label" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0">
-          <span>Editorial Intent</span>
-          <span class="intent-status" id="intent-status">Generic</span>
-        </div>
-        <p style="font-size:0.7rem; color:var(--text-dim); margin: 8px 0 12px; line-height:1.45">
-          Tell the AI what you're looking for. Specificity changes the output.
-        </p>
-        <div class="intent-field">
-          <label>Audience</label>
-          <select id="intent-audience" onchange="onIntentChange()">
-            <option value="">— pick one —</option>
-            <option value="general public">General public</option>
-            <option value="policymakers">Policymakers</option>
-            <option value="technical specialists">Technical specialists</option>
-            <option value="newsroom peers">Newsroom peers</option>
-            <option value="local community">Local community</option>
-          </select>
-        </div>
-        <div class="intent-field">
-          <label>Editorial lens</label>
-          <select id="intent-lens" onchange="onIntentChange()">
-            <option value="">— pick one —</option>
-            <option value="concentration">Concentration (who dominates)</option>
-            <option value="change over time">Change over time</option>
-            <option value="inequality">Inequality / imbalance</option>
-            <option value="behavioral">Behavioral pattern</option>
-            <option value="structural">Structural / systemic</option>
-          </select>
-        </div>
-        <div class="intent-field">
-          <label>Question I'm answering</label>
-          <textarea id="intent-question" rows="2" placeholder="e.g. Which neighborhoods are most exposed but least protected?" oninput="onIntentChange()"></textarea>
-        </div>
-        <div class="intent-field">
-          <label>What is this data?</label>
-          <textarea id="intent-context" rows="2" placeholder="e.g. Eviction filings in Baltimore 2019-2024, scraped from district court records" oninput="onIntentChange()"></textarea>
-        </div>
-        <div class="intent-field" id="intent-keyfields-wrap" style="display:none">
-          <label>Key fields for the story</label>
-          <div id="intent-keyfields" class="keyfield-chips"></div>
-        </div>
-        <button class="btn-show-prompt-trigger" onclick="openPromptModal()" id="btn-show-prompt">
-          Show prompt sent to Claude →
-        </button>
+    <aside class="sidebar-right chat-sidebar">
+      <div class="chat-header">
+        <div class="sidebar-section-label" style="margin:0">Refine your data</div>
+        <p class="chat-sub">Ask Claude to reshape, filter, or interrogate what you're seeing.</p>
       </div>
-
-      <div>
-        <div class="sidebar-section-label">Statistics</div>
-        <div class="stat-grid" id="stat-grid">
-          <div style="grid-column:1/-1; color:var(--text-dim); font-size:0.8rem; padding:8px 0;">Select a column to see stats</div>
+      <div class="chat-messages" id="chat-messages">
+        <div class="chat-empty">
+          <div style="font-size:1.6rem; margin-bottom:8px; opacity:0.4">✦</div>
+          <p style="font-size:0.78rem; color:var(--text-dim); line-height:1.5">
+            Try: <em>"Focus on the top 5 outliers"</em>, <em>"Compare urban vs rural"</em>, or <em>"What's hiding in the missing rows?"</em>
+          </p>
         </div>
       </div>
-      <div>
-        <div class="sidebar-section-label">Observations</div>
-        <div class="insight-list" id="insight-list">
-          <div style="color:var(--text-dim); font-size:0.8rem; padding:8px 0;">Insights will appear here</div>
-        </div>
-      </div>
-      <div>
-        <div class="sidebar-section-label">Options</div>
-        <div class="toggle-row" id="outlier-toggle-row" style="display:none">
-          <label>Show outliers</label>
-          <div class="toggle on" id="outlier-toggle" onclick="toggleOutliers()"></div>
-        </div>
-        <div id="map-color-row" style="display:none; margin-top:8px">
-          <div class="sidebar-section-label" style="margin-bottom:8px">Map color</div>
-          <div class="color-scheme-row">
-            <div class="color-swatch active" data-scheme="risk" style="background:linear-gradient(to right,#313695,#ffffbf,#a50026)" title="Risk (blue→red)" onclick="setColorScheme('risk',this)"></div>
-            <div class="color-swatch" data-scheme="heat" style="background:linear-gradient(to right,#fff7ec,#fe9929,#7f0000)" title="Heat" onclick="setColorScheme('heat',this)"></div>
-            <div class="color-swatch" data-scheme="green" style="background:linear-gradient(to right,#f7fcf5,#74c476,#00441b)" title="Greens" onclick="setColorScheme('green',this)"></div>
-            <div class="color-swatch" data-scheme="purple" style="background:linear-gradient(to right,#fcfbfd,#9e9ac8,#3f007d)" title="Purples" onclick="setColorScheme('purple',this)"></div>
-            <div class="color-swatch" data-scheme="diverge" style="background:linear-gradient(to right,#d53e4f,#ffffbf,#3288bd)" title="Diverging" onclick="setColorScheme('diverge',this)"></div>
-          </div>
-        </div>
-      </div>
-
-      <div id="outlier-panel" style="display:none">
-        <div class="sidebar-section-label">Outlier Connections</div>
-        <div id="outlier-connections"></div>
+      <div class="chat-input-wrap">
+        <textarea id="chat-input" rows="2" placeholder="What are you looking for?" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChatMessage()}"></textarea>
+        <button class="chat-send" onclick="sendChatMessage()" title="Send">→</button>
       </div>
     </aside>
 
   </div>
-</div>
-
-<div id="upload-fab" style="display:none; position:fixed; bottom:24px; right:24px; z-index:50;">
-  <label for="fab-file-input" style="
-    display:flex; align-items:center; gap:8px;
-    background:var(--surface2); border:1px solid var(--border);
-    border-radius:10px; padding:10px 16px;
-    font-size:0.8rem; color:var(--text-muted);
-    cursor:pointer; transition:all 0.15s;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-  " onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--text)'"
-     onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
-    ⬡ Upload new dataset
-  </label>
-  <input type="file" id="fab-file-input" accept=".csv" style="display:none" />
 </div>
 
 <script>
@@ -1099,6 +1213,11 @@ let state = {
   lastBaselinePrompt: '',
   // Interrogation results
   interrogation: null,
+  // Chat sidebar
+  chatHistory: [],
+  // Currently highlighted insight (top-3 strip)
+  activeInsightIdx: null,
+  topAngles: [],
 };
 let chart = null;
 let topoCache = null;
@@ -1182,97 +1301,121 @@ ${sample}`;
 }
 
 // ─── Sample Data ──────────────────────────────────────────────────────────────
+// Public-API datasets — fetched live, never hardcoded.
+// Each entry: a label, a filename for display, a URL, and an optional
+// `transform` that reshapes the response (used when the API returns JSON
+// rather than CSV).
 const SAMPLES = {
-  weather: {
-    name: 'weather_trends.csv',
-    csv: `month,avg_temp_f,rainfall_in,sunny_days,humidity_pct
-Jan,32,3.2,8,72
-Feb,35,2.8,10,68
-Mar,48,3.5,12,65
-Apr,58,4.1,14,62
-May,68,3.8,18,58
-Jun,78,2.9,22,55
-Jul,85,2.1,26,52
-Aug,83,2.4,24,54
-Sep,74,3.0,20,57
-Oct,62,3.6,16,63
-Nov,48,3.9,10,69
-Dec,36,3.3,7,73`
-  },
-  elections: {
-    name: 'election_results.csv',
-    csv: `county,candidate_a_pct,candidate_b_pct,turnout_pct,median_income,urban_index
-Adams,62,36,71,54000,3
-Baker,41,57,68,72000,7
-Carroll,55,43,74,48000,2
-Davis,38,60,65,89000,9
-Ellis,71,27,58,38000,1
-Franklin,44,54,72,81000,8
-Grant,68,30,61,42000,2
-Hayes,49,49,77,67000,5
-Irving,35,63,70,94000,10
-Jackson,73,25,55,35000,1`
+  disasters: {
+    name: 'fema_disasters.csv',
+    source: 'FEMA OpenFEMA',
+    url: 'https://www.fema.gov/api/open/v2/DisasterDeclarationsSummaries?$top=500&$orderby=declarationDate%20desc',
+    format: 'json',
+    transform: (json) => {
+      const rows = json.DisasterDeclarationsSummaries || [];
+      // Keep journalism-relevant columns; drop FEMA's internal IDs / flags.
+      const cols = [
+        'declarationDate', 'state', 'incidentType', 'declarationType',
+        'declarationTitle', 'designatedArea', 'region',
+        'fyDeclared', 'incidentBeginDate', 'incidentEndDate',
+        'ihProgramDeclared', 'iaProgramDeclared',
+        'paProgramDeclared', 'hmProgramDeclared',
+      ];
+      const escape = (v) => {
+        if (v == null) return '';
+        const s = String(v);
+        return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+      };
+      const header = cols.join(',');
+      const body = rows.map(r => cols.map(c => escape(r[c])).join(',')).join('\n');
+      return header + '\n' + body;
+    },
   },
   climate: {
-    name: 'climate_risk_by_state.csv',
-    csv: `state,fips,risk_score,flood_risk,wildfire_risk,heat_risk,storm_risk,population_millions
-Alabama,01,52.3,48,12,61,72,5.0
-Alaska,02,31.2,28,45,22,38,0.7
-Arizona,04,58.7,18,78,82,31,7.3
-Arkansas,05,49.1,55,22,58,68,3.0
-California,06,71.4,42,91,79,44,39.5
-Colorado,08,54.8,31,82,51,47,5.8
-Connecticut,09,38.2,52,8,41,55,3.6
-Delaware,10,44.1,61,5,48,62,1.0
-Florida,12,81.3,88,34,91,95,21.5
-Georgia,13,59.2,51,28,68,71,10.7
-Hawaii,15,42.3,35,58,71,44,1.4
-Idaho,16,41.7,22,72,38,28,1.9
-Illinois,17,47.3,58,8,52,61,12.6
-Indiana,18,43.8,54,5,49,58,6.8
-Iowa,19,46.2,61,4,52,64,3.2
-Kansas,20,55.1,38,19,62,78,2.9
-Kentucky,21,51.4,62,12,58,65,4.5
-Louisiana,22,76.8,91,12,81,88,4.6
-Maine,23,29.8,31,18,22,42,1.4
-Maryland,24,48.3,62,9,52,58,6.2
-Massachusetts,25,36.4,48,6,38,51,6.9
-Michigan,26,38.7,42,8,35,48,10.0
-Minnesota,27,36.2,38,15,31,45,5.7
-Mississippi,28,62.4,71,11,72,81,3.0
-Missouri,29,52.8,62,8,58,72,6.2
-Montana,30,39.1,21,78,31,32,1.1
-Nebraska,31,49.3,41,14,58,72,2.0
-Nevada,32,52.4,12,71,82,22,3.1
-New Hampshire,33,28.7,28,12,25,38,1.4
-New Jersey,34,44.8,65,6,49,62,9.3
-New Mexico,35,55.2,22,81,72,38,2.1
-New York,36,41.3,55,7,42,54,19.8
-North Carolina,37,56.8,58,22,62,74,10.4
-North Dakota,38,38.4,44,8,41,55,0.8
-Ohio,39,41.2,51,4,44,55,11.8
-Oklahoma,40,62.1,51,38,72,88,4.0
-Oregon,41,49.3,32,82,42,38,4.2
-Pennsylvania,42,40.8,52,7,43,54,13.0
-Rhode Island,44,32.1,45,4,35,48,1.1
-South Carolina,45,62.7,64,28,71,78,5.1
-South Dakota,46,41.8,38,12,48,62,0.9
-Tennessee,47,55.3,58,18,64,71,6.9
-Texas,48,72.4,62,58,88,91,29.1
-Utah,49,44.8,18,72,61,28,3.3
-Vermont,50,27.3,28,11,22,35,0.6
-Virginia,51,49.8,52,16,54,62,8.6
-Washington,53,46.2,31,68,41,38,7.7
-West Virginia,54,44.3,58,12,49,58,1.8
-Wisconsin,55,34.8,38,8,31,44,5.9
-Wyoming,56,37.2,18,62,35,42,0.6`
-  }
+    name: 'baltimore_climate_2019_2024.csv',
+    source: 'Copernicus ERA5 via Open-Meteo',
+    url: 'https://archive-api.open-meteo.com/v1/archive?latitude=39.29&longitude=-76.61&start_date=2019-01-01&end_date=2024-01-01&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max&timezone=America%2FNew_York&format=csv',
+    format: 'csv',
+  },
+  earthquakes: {
+    name: 'usgs_quakes_M4.5_past_month.csv',
+    source: 'USGS Earthquake Hazards Program',
+    url: 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_month.csv',
+    format: 'csv',
+  },
 };
 
-function loadSample(key) {
+async function loadSample(key) {
   const s = SAMPLES[key];
-  const result = Papa.parse(s.csv.trim(), { header: true, dynamicTyping: true, skipEmptyLines: true });
-  processData(result.data, s.name);
+  if (!s) return;
+
+  // Lock the clicked chip in a loading state so it's obvious what's happening
+  const chip = document.querySelector(`.sample-chip[data-sample="${key}"]`);
+  const originalText = chip?.textContent;
+  if (chip) {
+    chip.classList.add('loading');
+    chip.textContent = '⋯ Fetching…';
+    chip.style.pointerEvents = 'none';
+  }
+
+  try {
+    const res = await fetch(s.url);
+    if (!res.ok) throw new Error(`${s.source} returned ${res.status}`);
+    let csvText;
+    if (s.format === 'csv') {
+      csvText = await res.text();
+      // Open-Meteo prefixes its CSV with metadata rows. Strip everything
+      // before the first row that starts with "time," or a known header.
+      if (key === 'climate') {
+        const lines = csvText.split('\n');
+        const headerIdx = lines.findIndex(l => /^time,/i.test(l));
+        if (headerIdx > 0) csvText = lines.slice(headerIdx).join('\n');
+        // Strip unit suffixes from column headers so they match what the AI
+        // echoes back. "temperature_2m_max (°C)" → "temperature_2m_max".
+        const split = csvText.split('\n');
+        if (split[0]) {
+          split[0] = split[0]
+            .split(',')
+            .map(h => h.replace(/\s*\([^)]*\)\s*$/, '').trim())
+            .join(',');
+          csvText = split.join('\n');
+        }
+      }
+    } else if (s.format === 'json' && typeof s.transform === 'function') {
+      const json = await res.json();
+      csvText = s.transform(json);
+    } else {
+      throw new Error(`Unhandled format: ${s.format}`);
+    }
+
+    const parsed = Papa.parse(csvText.trim(), {
+      header: true,
+      dynamicTyping: true,
+      skipEmptyLines: true,
+    });
+    if (!parsed.data?.length) throw new Error('Empty result from API');
+
+    processData(parsed.data, s.name);
+  } catch (err) {
+    if (chip) {
+      chip.classList.remove('loading');
+      chip.classList.add('error');
+      chip.textContent = `⚠ ${err.message.slice(0, 40)}`;
+      chip.style.pointerEvents = '';
+      setTimeout(() => {
+        chip.classList.remove('error');
+        chip.textContent = originalText;
+      }, 4000);
+    } else {
+      alert(`Failed to load ${s.name}: ${err.message}`);
+    }
+  } finally {
+    if (chip) {
+      chip.classList.remove('loading');
+      chip.textContent = originalText;
+      chip.style.pointerEvents = '';
+    }
+  }
 }
 
 // ─── File Upload ──────────────────────────────────────────────────────────────
@@ -1291,7 +1434,7 @@ dropZone.addEventListener('click', e => {
   if (!e.target.classList.contains('btn-upload')) fileInput.click();
 });
 fileInput.addEventListener('change', e => { if (e.target.files[0]) parseFile(e.target.files[0]); });
-document.getElementById('fab-file-input').addEventListener('change', e => { if (e.target.files[0]) parseFile(e.target.files[0]); });
+// (upload-fab removed)
 
 function parseFile(file) {
   Papa.parse(file, {
@@ -1301,17 +1444,48 @@ function parseFile(file) {
 }
 
 // ─── Column Type Detection ────────────────────────────────────────────────────
-const GEO_PATTERNS = /^(fips|county_fips|stcofips|geoid|geo_id|state_fips|countyfips|county_code|statefp|countyfp)$/i;
+const GEO_PATTERNS = /^(fips|county_fips|stcofips|geoid|geo_id|state_fips|countyfips|county_code|statefp|countyfp|state|state_abbr|st)$/i;
 const STATE_FIPS_COL = /^(state_fips|statefips|state_code|fips)$/i;
 const FIPS_VALUE = v => {
   const s = String(v).trim();
   return /^\d{2,5}$/.test(s) && parseInt(s) <= 99999;
 };
+const STATE_ABBR_VALUE = v => {
+  const s = String(v).trim().toUpperCase();
+  return s.length === 2 && /^[A-Z]{2}$/.test(s) && STATE_ABBR_TO_FIPS[s];
+};
+
+// US state postal abbreviation → 2-digit FIPS code
+const STATE_ABBR_TO_FIPS = {
+  AL:'01', AK:'02', AZ:'04', AR:'05', CA:'06', CO:'08', CT:'09', DE:'10',
+  DC:'11', FL:'12', GA:'13', HI:'15', ID:'16', IL:'17', IN:'18', IA:'19',
+  KS:'20', KY:'21', LA:'22', ME:'23', MD:'24', MA:'25', MI:'26', MN:'27',
+  MS:'28', MO:'29', MT:'30', NE:'31', NV:'32', NH:'33', NJ:'34', NM:'35',
+  NY:'36', NC:'37', ND:'38', OH:'39', OK:'40', OR:'41', PA:'42', RI:'44',
+  SC:'45', SD:'46', TN:'47', TX:'48', UT:'49', VT:'50', VA:'51', WA:'53',
+  WV:'54', WI:'55', WY:'56', AS:'60', GU:'66', MP:'69', PR:'72', VI:'78',
+};
+const STATE_FIPS_TO_NAME = {
+  '01':'Alabama','02':'Alaska','04':'Arizona','05':'Arkansas','06':'California',
+  '08':'Colorado','09':'Connecticut','10':'Delaware','11':'D.C.','12':'Florida',
+  '13':'Georgia','15':'Hawaii','16':'Idaho','17':'Illinois','18':'Indiana',
+  '19':'Iowa','20':'Kansas','21':'Kentucky','22':'Louisiana','23':'Maine',
+  '24':'Maryland','25':'Massachusetts','26':'Michigan','27':'Minnesota',
+  '28':'Mississippi','29':'Missouri','30':'Montana','31':'Nebraska','32':'Nevada',
+  '33':'New Hampshire','34':'New Jersey','35':'New Mexico','36':'New York',
+  '37':'North Carolina','38':'North Dakota','39':'Ohio','40':'Oklahoma',
+  '41':'Oregon','42':'Pennsylvania','44':'Rhode Island','45':'South Carolina',
+  '46':'South Dakota','47':'Tennessee','48':'Texas','49':'Utah','50':'Vermont',
+  '51':'Virginia','53':'Washington','54':'West Virginia','55':'Wisconsin','56':'Wyoming',
+};
 
 function detectColumnType(col, data) {
   const vals = data.map(r => r[col]).filter(v => v != null && v !== '');
-  // Geo detection: name match + value looks like FIPS
-  if (GEO_PATTERNS.test(col) && vals.slice(0, 10).some(FIPS_VALUE)) return 'geo';
+  // Geo detection: name match + (FIPS-looking value OR 2-letter state code)
+  if (GEO_PATTERNS.test(col)) {
+    const sample = vals.slice(0, 10);
+    if (sample.some(FIPS_VALUE) || sample.some(STATE_ABBR_VALUE)) return 'geo';
+  }
   const numCount = vals.filter(v => typeof v === 'number' && !isNaN(v)).length;
   const dateCount = vals.filter(v => typeof v === 'string' && /^\d{4}[-\/]|^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i.test(v)).length;
   if (numCount / vals.length > 0.8) return 'numeric';
@@ -1403,20 +1577,20 @@ function processData(data, filename) {
 
   document.getElementById('upload-screen').style.display = 'none';
   document.getElementById('workspace').style.display = 'block';
-  document.getElementById('upload-fab').style.display = 'block';
   document.getElementById('btn-back').style.display = 'flex';
   // nav-sep removed
   document.getElementById('nav-crumb').style.display = '';
   document.getElementById('nav-crumb').textContent = filename;
   updateApiStatus();
 
-  // Reset Editorial Intent for the new dataset
-  ['intent-audience', 'intent-lens', 'intent-question', 'intent-context'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = '';
-  });
-  state.intent = { audience: '', lens: '', question: '', context: '', keyFields: [] };
-  populateIntentKeyFields();
+  // Reset chat + insight highlight + investigation context for the new dataset
+  resetChat();
+  state.activeInsightIdx = null;
+  state.activeInvestigation = null;
+  state.activeInvestigationIdx = null;
+  state.interrogation = null;
+  const _banner = document.getElementById('investigation-details');
+  if (_banner) _banner.style.display = 'none';
 
   // Interrogate the dataset with AI in the background (if key present)
   runInterrogation();
@@ -1454,8 +1628,13 @@ function selectColumn(colName) {
     const placeholder = document.querySelector('#chart-wrap .chart-placeholder');
     if (placeholder) placeholder.style.display = '';
   }
+  // Hide the investigation-details banner; loadInvestigation re-shows it after
+  // calling selectColumn, so this only persists for manual column clicks.
+  const banner = document.getElementById('investigation-details');
+  if (banner) banner.style.display = 'none';
 
   state.activeColumn = colName;
+  state.activeInsightIdx = null; // clear highlight when column changes
   const colInfo = state.columns.find(c => c.name === colName);
   const stats = getStats(colName, state.data, colInfo.type);
 
@@ -1463,54 +1642,14 @@ function selectColumn(colName) {
     el.classList.toggle('active', el.dataset.col === colName)
   );
 
-  // Stats panel
-  const grid = document.getElementById('stat-grid');
-  if (colInfo.type === 'numeric') {
-    grid.innerHTML = `
-      <div class="stat-card"><div class="label">Mean</div><div class="value">${fmt(stats.mean)}</div></div>
-      <div class="stat-card"><div class="label">Median</div><div class="value">${fmt(stats.median)}</div></div>
-      <div class="stat-card"><div class="label">Min</div><div class="value">${fmt(stats.min)}</div></div>
-      <div class="stat-card"><div class="label">Max</div><div class="value">${fmt(stats.max)}</div></div>
-      <div class="stat-card"><div class="label">Outliers</div><div class="value" style="color:${stats.outliers.length > 0 ? '#f7a86a' : 'var(--accent3)'}">${stats.outliers.length}</div></div>
-      <div class="stat-card"><div class="label">Nulls</div><div class="value" style="color:${stats.nullCount > 0 ? '#f7a86a' : 'var(--text-muted)'}">${stats.nullCount}</div></div>
-    `;
-    document.getElementById('outlier-toggle-row').style.display = stats.outliers.length > 0 ? 'flex' : 'none';
-  } else if (colInfo.type === 'geo') {
-    grid.innerHTML = `
-      <div class="stat-card"><div class="label">Geo IDs</div><div class="value">${stats.count}</div></div>
-      <div class="stat-card"><div class="label">Unique</div><div class="value">${stats.uniqueCount || stats.count}</div></div>
-    `;
-    document.getElementById('outlier-toggle-row').style.display = 'none';
-  } else {
-    grid.innerHTML = `
-      <div class="stat-card"><div class="label">Unique</div><div class="value">${stats.uniqueCount}</div></div>
-      <div class="stat-card"><div class="label">Count</div><div class="value">${stats.count}</div></div>
-      <div class="stat-card" style="grid-column:1/-1"><div class="label">Top values</div>
-        <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:5px;">
-          ${stats.topValues.map(([v,c]) => `<span style="background:var(--surface3);border-radius:4px;padding:3px 7px;font-size:0.72rem;color:var(--text-muted)">${v} <strong style="color:var(--text)">${c}</strong></span>`).join('')}
-        </div>
-      </div>
-      <div class="stat-card"><div class="label">Nulls</div><div class="value">${stats.nullCount}</div></div>
-    `;
-    document.getElementById('outlier-toggle-row').style.display = 'none';
-  }
-
-  // Insights
-  const insights = getInsights(colName, stats, colInfo.type);
-  document.getElementById('insight-list').innerHTML = insights.map(i => `
-    <div class="insight-item ${i.kind}">
-      <div class="insight-type">${i.label}</div>${i.text}
-    </div>
-  `).join('');
-
   // Overlay selector
   const numCols = state.columns.filter(c => c.type === 'numeric' && c.name !== colName).map(c => c.name);
   const overlaySel = document.getElementById('overlay-select');
-  overlaySel.innerHTML = `<option value="">None</option>` + numCols.map(c => `<option value="${c}" ${c === state.overlayColumn ? 'selected':''}>${c}</option>`).join('');
-  document.getElementById('overlay-toolbar').style.display = colInfo.type === 'numeric' ? 'flex' : 'none';
-
-  // Map color row
-  document.getElementById('map-color-row').style.display = colInfo.type === 'geo' ? 'block' : 'none';
+  if (overlaySel) {
+    overlaySel.innerHTML = `<option value="">None</option>` + numCols.map(c => `<option value="${c}" ${c === state.overlayColumn ? 'selected':''}>${c}</option>`).join('');
+  }
+  const overlayToolbar = document.getElementById('overlay-toolbar');
+  if (overlayToolbar) overlayToolbar.style.display = colInfo.type === 'numeric' ? 'flex' : 'none';
 
   // Story angles
   updateStoryAngles(colName, stats, colInfo.type);
@@ -1545,9 +1684,18 @@ function buildChartTabs(type) {
     const xSel = document.getElementById('x-select');
     const ySel = document.getElementById('y-select');
     const sizeSel = document.getElementById('size-select');
-    xSel.innerHTML = [...catCols, ...numCols].map(c => `<option value="${c}" ${c === state.activeColumn ? 'selected':''}>${c}</option>`).join('');
-    ySel.innerHTML = numCols.map(c => `<option value="${c}" ${c === state.activeColumn ? 'selected':''}>${c}</option>`).join('');
-    sizeSel.innerHTML = numCols.map(c => `<option value="${c}">${c}</option>`).join('');
+
+    // Respect pre-set X/Y/Size from an investigation; otherwise default to the active column.
+    const preX = state.activeXCol;
+    const preY = state.activeYCol;
+    const preSize = state.activeSizeCol;
+    const xDefault = preX && [...catCols, ...numCols].includes(preX) ? preX : state.activeColumn;
+    const yDefault = preY && numCols.includes(preY) ? preY : state.activeColumn;
+    const sizeDefault = preSize && numCols.includes(preSize) ? preSize : numCols[0];
+
+    xSel.innerHTML = [...catCols, ...numCols].map(c => `<option value="${c}" ${c === xDefault ? 'selected':''}>${c}</option>`).join('');
+    ySel.innerHTML = numCols.map(c => `<option value="${c}" ${c === yDefault ? 'selected':''}>${c}</option>`).join('');
+    sizeSel.innerHTML = numCols.map(c => `<option value="${c}" ${c === sizeDefault ? 'selected':''}>${c}</option>`).join('');
     state.activeXCol = xSel.value;
     state.activeYCol = ySel.value;
     state.activeSizeCol = sizeSel.value;
@@ -1582,7 +1730,8 @@ function setChartType(type) {
     t.classList.toggle('active', t.dataset.type === type)
   );
   document.getElementById('bin-toggle').style.display = type === 'map' ? 'flex' : 'none';
-  document.getElementById('map-color-row').style.display = type === 'map' ? 'block' : 'none';
+  const mcr = document.getElementById('map-color-row');
+  if (mcr) mcr.style.display = type === 'map' ? 'block' : 'none';
   updateAxisSelectors();
   renderChart();
 }
@@ -1646,6 +1795,24 @@ const MULTI_COLORS = [
 ];
 
 function renderChart() {
+  // Recolor the chart's primary palette when an insight is active.
+  // Mutate properties of the const palette object; restored at the end.
+  const _origAccent = CHART_COLORS.accent;
+  const _origBorder = CHART_COLORS.accentBorder;
+  const _ic = getActiveInsightColor();
+  if (_ic) {
+    CHART_COLORS.accent = _ic;
+    CHART_COLORS.accentBorder = _ic.replace('0.85)', '1)');
+  }
+  try {
+    return _renderChartInner();
+  } finally {
+    CHART_COLORS.accent = _origAccent;
+    CHART_COLORS.accentBorder = _origBorder;
+  }
+}
+
+function _renderChartInner() {
   if (state.chartType === 'map') {
     renderMap();
     return;
@@ -1764,9 +1931,9 @@ function renderChart() {
       });
       opts.scales.y2 = {
         position: 'right', grid: { drawOnChartArea: false },
-        ticks: { color: 'rgba(247,106,143,0.7)', font: { size: 11 } },
+        ticks: { color: '#ffffff', font: { size: 11 } },
       };
-      opts.plugins.legend = { display: true, labels: { color: 'var(--text-muted)', font: { size: 11 } } };
+      opts.plugins.legend = { display: true, labels: { color: '#ffffff', font: { size: 11 } } };
     }
 
     config = { type: isLine ? 'line' : 'bar', data: { labels: rows.map(r => r.label), datasets }, options: opts };
@@ -1809,24 +1976,24 @@ function renderChart() {
 }
 
 function chartOptions(noscales = false, categoryX = false, xLabel = '', yLabel = '') {
-  const titleStyle = { display: true, color: '#5a5a6e', font: { size: 10, weight: '500' }, padding: { top: 4 } };
+  const titleStyle = { display: true, color: '#ffffff', font: { size: 11, weight: '600' }, padding: { top: 4 } };
   const base = {
     responsive: true, maintainAspectRatio: false, animation: { duration: 300 },
     plugins: {
       legend: { display: false },
-      tooltip: { backgroundColor: '#1e1e24', borderColor: '#2e2e38', borderWidth: 1, titleColor: '#e8e8f0', bodyColor: '#7a7a8c', padding: 10, cornerRadius: 8 }
+      tooltip: { backgroundColor: '#1e1e24', borderColor: '#2e2e38', borderWidth: 1, titleColor: '#ffffff', bodyColor: '#e8e8f0', padding: 10, cornerRadius: 8 }
     },
   };
   if (noscales) return base;
   return { ...base, scales: {
     x: {
-      ticks: { color: '#4a4a5a', font: { size: 11 }, maxRotation: 45 },
+      ticks: { color: '#ffffff', font: { size: 11 }, maxRotation: 45 },
       grid: { color: 'rgba(46,46,56,0.5)' },
       type: categoryX ? 'category' : undefined,
       title: xLabel ? { ...titleStyle, text: xLabel } : { display: false },
     },
     y: {
-      ticks: { color: '#4a4a5a', font: { size: 11 } },
+      ticks: { color: '#ffffff', font: { size: 11 } },
       grid: { color: 'rgba(46,46,56,0.5)' },
       title: yLabel ? { ...titleStyle, text: yLabel } : { display: false },
     }
@@ -1852,13 +2019,35 @@ async function renderMap() {
   const wrap = document.getElementById('chart-wrap');
   if (chart) { chart.destroy(); chart = null; }
 
-  // Determine if this is state-level or county-level
+  // Determine if this is state-level or county-level, and whether the geo
+  // column uses 2-letter state postal codes (FEMA, etc.) or FIPS digits.
   const geoCol = state.geoColumn;
-  const geoValues = state.data.map(r => String(r[geoCol]).trim().padStart(5, '0'));
-  const isStateLevelData = geoValues.every(v => parseInt(v) <= 99 || /^\d{2}$/.test(v.replace(/^0+/, '') || '0'));
+  const rawGeo = state.data.map(r => String(r[geoCol] ?? '').trim()).filter(Boolean);
+  const isAbbr = rawGeo.length > 0 && rawGeo.every(v => /^[A-Z]{2}$/i.test(v) && STATE_ABBR_TO_FIPS[v.toUpperCase()]);
+  // Normalize each row's geo to a padded FIPS string the topojson uses.
+  const toFips = (raw) => {
+    if (isAbbr) return STATE_ABBR_TO_FIPS[String(raw).trim().toUpperCase()];
+    const s = String(raw).trim();
+    // 2-digit numeric = state level; up to 5 digits = county
+    return s.length <= 2 ? s.padStart(2, '0') : s.padStart(5, '0');
+  };
+  const isStateLevelData = isAbbr || rawGeo.every(v => {
+    const s = String(v).trim();
+    return s.length <= 2 || parseInt(s) <= 99;
+  });
 
-  const valueCol = state.mapValueCol || state.columns.find(c => c.type === 'numeric')?.name;
-  if (!valueCol) return;
+  // If no numeric column is chosen, aggregate by COUNT — meaningful for
+  // event datasets like FEMA disasters where the row IS the unit of analysis.
+  const explicitValueCol = state.mapValueCol;
+  let valueCol;
+  let aggregateMode;
+  if (explicitValueCol && state.columns.some(c => c.name === explicitValueCol && c.type === 'numeric')) {
+    valueCol = explicitValueCol;
+    aggregateMode = 'sum';
+  } else {
+    valueCol = 'count of rows';
+    aggregateMode = 'count';
+  }
 
   wrap.innerHTML = `<div id="map-container" style="width:100%;height:100%;position:relative">
     <div class="map-loading"><div class="spinner"></div><p>Loading map data…</p></div>
@@ -1867,14 +2056,20 @@ async function renderMap() {
   try {
     const topo = await loadTopo();
 
-    // Build FIPS → value lookup
+    // Build FIPS → aggregated value lookup
     const lookup = {};
     state.data.forEach(row => {
-      const raw = String(row[geoCol]).trim();
-      // Handle state-level: pad to 2 digits
-      const fips = isStateLevelData ? raw.padStart(2, '0') : raw.padStart(5, '0');
-      const val = row[valueCol];
-      if (val != null && !isNaN(+val)) lookup[fips] = +val;
+      const fips = toFips(row[geoCol]);
+      if (!fips) return;
+      if (aggregateMode === 'count') {
+        lookup[fips] = (lookup[fips] || 0) + 1;
+      } else {
+        const val = row[valueCol];
+        if (val != null && !isNaN(+val)) {
+          // Sum so multiple rows per region accumulate instead of overwriting.
+          lookup[fips] = (lookup[fips] || 0) + (+val);
+        }
+      }
     });
 
     const values = Object.values(lookup);
@@ -1929,7 +2124,8 @@ async function renderMap() {
       .on('mousemove', (event, d) => {
         const id = String(d.id).padStart(isStateLevelData ? 2 : 5, '0');
         const val = lookup[id];
-        const name = d.properties?.name || id;
+        // Prefer TopoJSON name; fall back to our state lookup; finally show FIPS
+        const name = d.properties?.name || (isStateLevelData ? STATE_FIPS_TO_NAME[id] : null) || id;
         const tt = document.getElementById('map-tooltip');
         document.getElementById('tt-name').textContent = name;
         document.getElementById('tt-value').innerHTML = val != null
@@ -1993,6 +2189,7 @@ function updateMapInsights(lookup, features, valueCol, values, isState) {
   const mean = values.reduce((a,b) => a+b,0) / values.length;
 
   const insightList = document.getElementById('insight-list');
+  if (!insightList) return; // sidebar redesigned — element no longer exists
   insightList.innerHTML = `
     <div class="insight-item info">
       <div class="insight-type">Coverage</div>
@@ -2013,7 +2210,8 @@ function updateMapInsights(lookup, features, valueCol, values, isState) {
 // ─── Outlier Toggle ───────────────────────────────────────────────────────────
 function toggleOutliers() {
   state.showOutliers = !state.showOutliers;
-  document.getElementById('outlier-toggle').classList.toggle('on', state.showOutliers);
+  const t = document.getElementById('outlier-toggle');
+  if (t) t.classList.toggle('on', state.showOutliers);
   renderChart();
 }
 
@@ -2021,12 +2219,14 @@ function toggleOutliers() {
 function goHome() {
   if (chart) { chart.destroy(); chart = null; }
   state.data = null; state.columns = []; state.activeColumn = null; state.geoColumn = null;
+  state.interrogation = null;
   document.getElementById('workspace').style.display = 'none';
   document.getElementById('upload-screen').style.display = 'flex';
-  document.getElementById('upload-fab').style.display = 'none';
   document.getElementById('btn-back').style.display = 'none';
   document.getElementById('nav-crumb').style.display = 'none';
   document.getElementById('file-input').value = '';
+  const allBtn = document.getElementById('btn-show-all-investigations');
+  if (allBtn) allBtn.style.display = 'none';
 }
 
 // ─── Settings ─────────────────────────────────────────────────────────────────
@@ -2098,6 +2298,7 @@ function showOutlierConnections(col, stats, lo, hi) {
 
   const panel = document.getElementById('outlier-panel');
   const container = document.getElementById('outlier-connections');
+  if (!panel || !container) return; // sidebar redesigned — no longer rendered
   panel.style.display = 'block';
 
   // Label col for identifying outlier rows
@@ -2207,15 +2408,19 @@ function updateStoryAngles(col, stats, type) {
 
   const typeTag = type === 'numeric' ? 'NUMERIC' : type === 'categorical' ? 'CATEGORICAL' : type.toUpperCase();
 
-  // Bottom strip
+  // Cap to top 3 insights — each clickable, each in a distinct color.
+  const top3 = angles.slice(0, 3);
+  state.topAngles = top3;
+
   const strip = document.getElementById('angles-strip');
   const stripContent = document.getElementById('angles-strip-content');
   strip.style.display = 'block';
-  if (angles.length === 0) {
+  if (top3.length === 0) {
     stripContent.innerHTML = `<div style="color:var(--text-dim);font-size:0.78rem;padding:14px">No strong patterns detected.</div>`;
   } else {
-    stripContent.innerHTML = angles.map((a, i) => `
-      <div class="strip-angle">
+    stripContent.innerHTML = top3.map((a, i) => `
+      <div class="strip-angle insight-clickable color-${i} ${state.activeInsightIdx === i ? 'active' : ''}"
+           onclick="selectInsight(${i})">
         <div class="sa-num">0${i+1}</div>
         <div class="sa-type-row">
           <div class="sa-dot"></div>
@@ -2228,9 +2433,104 @@ function updateStoryAngles(col, stats, type) {
     `).join('');
   }
 
-  // Show/hide AI button in strip — available for any column type
-  const showAI = !!apiKey;
-  document.getElementById('btn-ai-angles-strip').style.display = showAI ? 'inline-flex' : 'none';
+  // Hide the inline AI button — chat sidebar is the new AI affordance.
+  const btn = document.getElementById('btn-ai-angles-strip');
+  if (btn) btn.style.display = 'none';
+}
+
+// Toggle which insight is highlighted on the chart.
+function selectInsight(idx) {
+  state.activeInsightIdx = state.activeInsightIdx === idx ? null : idx;
+  // Re-render the strip cards (active class) and chart (color shift)
+  document.querySelectorAll('#angles-strip-content .strip-angle').forEach((el, i) => {
+    el.classList.toggle('active', state.activeInsightIdx === i);
+  });
+  renderChart();
+}
+
+// Color for the currently-active insight, used to recolor the primary chart.
+function getActiveInsightColor() {
+  if (state.activeInsightIdx == null) return null;
+  const palette = ['rgba(124,106,247,0.85)', 'rgba(247,106,143,0.85)', 'rgba(106,247,200,0.85)'];
+  return palette[state.activeInsightIdx] || null;
+}
+
+// ─── Chat sidebar (Refine your data) ─────────────────────────────────────────
+function addChatMessage(role, text, kind = '') {
+  const wrap = document.getElementById('chat-messages');
+  if (!wrap) return null;
+  const empty = wrap.querySelector('.chat-empty');
+  if (empty) empty.remove();
+  const el = document.createElement('div');
+  el.className = `chat-msg ${role}${kind ? ' ' + kind : ''}`;
+  el.textContent = text;
+  wrap.appendChild(el);
+  wrap.scrollTop = wrap.scrollHeight;
+  return el;
+}
+
+async function sendChatMessage() {
+  const input = document.getElementById('chat-input');
+  const sendBtn = document.querySelector('.chat-send');
+  const userMsg = input.value.trim();
+  if (!userMsg) return;
+
+  if (!localStorage.getItem('claude_api_key')) {
+    addChatMessage('assistant', 'Add your Claude API key in Settings (gear icon) to chat.', 'error');
+    return;
+  }
+
+  addChatMessage('user', userMsg);
+  state.chatHistory.push({ role: 'user', content: userMsg });
+  input.value = '';
+  input.disabled = true;
+  if (sendBtn) sendBtn.disabled = true;
+
+  const thinkingEl = addChatMessage('assistant', 'Thinking…', 'thinking');
+
+  // Build the conversation payload. System prompt anchors Claude to the
+  // current dataset so the user can ask questions in plain language.
+  const snap = state.data ? buildDatasetSnapshot(8) : '(no dataset loaded yet)';
+  const system = `You are a data-savvy editorial copilot helping a journalist make sense of a dataset they've loaded into a visualizer.
+
+Be concise (2-4 sentences max). When suggesting a chart, reference column names from the snapshot exactly. When suggesting a filter or transformation, describe it in plain language. Don't invent columns. If the data can't answer something, say so directly.
+
+Active column: ${state.activeColumn || '(none selected)'}
+Current chart: ${state.chartType}
+
+Dataset snapshot:
+${snap}`;
+
+  // Cap history sent so we don't blow up tokens
+  const messages = state.chatHistory.slice(-12).map(m => ({ role: m.role, content: m.content }));
+
+  try {
+    const { text } = await callClaude(messages, { system, max_tokens: 600 });
+    if (thinkingEl) thinkingEl.remove();
+    addChatMessage('assistant', text);
+    state.chatHistory.push({ role: 'assistant', content: text });
+  } catch (err) {
+    if (thinkingEl) thinkingEl.remove();
+    addChatMessage('assistant', err.message, 'error');
+  } finally {
+    input.disabled = false;
+    if (sendBtn) sendBtn.disabled = false;
+    input.focus();
+  }
+}
+
+function resetChat() {
+  state.chatHistory = [];
+  const wrap = document.getElementById('chat-messages');
+  if (wrap) {
+    wrap.innerHTML = `
+      <div class="chat-empty">
+        <div style="font-size:1.6rem; margin-bottom:8px; opacity:0.4">✦</div>
+        <p style="font-size:0.78rem; color:var(--text-dim); line-height:1.5">
+          Try: <em>"Focus on the top 5 outliers"</em>, <em>"Compare urban vs rural"</em>, or <em>"What's hiding in the missing rows?"</em>
+        </p>
+      </div>`;
+  }
 }
 
 // ─── Dataset Interrogation (Features A + B) ─────────────────────────────────
@@ -2282,7 +2582,12 @@ Return raw JSON only, no markdown:
       "primaryColumn": "exact_column_name",
       "secondaryColumn": "exact_column_name_or_null",
       "chartType": "bar | histogram | scatter | line | map | boxplot",
-      "reason": "1-2 sentences. Why this matters editorially."
+      "reason": "1-2 sentences. Why this matters editorially.",
+      "whatToLookFor": [
+        "Specific thing to look at in the chart (e.g. 'Outliers in the upper-right cluster')",
+        "Another concrete observation cue",
+        "A third pointer if useful"
+      ]
     }
   ],
   "cantAnswer": [
@@ -2293,7 +2598,7 @@ Return raw JSON only, no markdown:
   ]
 }
 
-Provide 4 investigations and 3 cantAnswer items. primaryColumn must match a real column name from the snapshot above.`;
+Provide 4 investigations (each with 2-3 whatToLookFor bullets) and 3 cantAnswer items. primaryColumn must match a real column name from the snapshot above.`;
 
   try {
     const { text } = await callClaude(prompt, { max_tokens: 2000 });
@@ -2302,6 +2607,9 @@ Provide 4 investigations and 3 cantAnswer items. primaryColumn must match a real
     renderInterrogation(result);
     loading.style.display = 'none';
     content.style.display = 'block';
+    // Surface the "All investigations" button in the sidebar now that we have results
+    const allBtn = document.getElementById('btn-show-all-investigations');
+    if (allBtn) allBtn.style.display = 'block';
   } catch (err) {
     loading.style.display = 'none';
     errorEl.style.display = 'block';
@@ -2309,21 +2617,33 @@ Provide 4 investigations and 3 cantAnswer items. primaryColumn must match a real
   }
 }
 
+// Mini Chart.js instances kept so we can dispose them on re-render
+let miniCharts = [];
+
 function renderInterrogation(result) {
   const invList = document.getElementById('investigation-list');
   const cantList = document.getElementById('cant-answer-list');
 
-  invList.innerHTML = (result.investigations || []).map((inv, i) => {
+  // Tear down any previous mini charts to avoid leaks
+  miniCharts.forEach(c => { try { c.destroy(); } catch(_) {} });
+  miniCharts = [];
+
+  const investigations = result.investigations || [];
+
+  invList.innerHTML = investigations.map((inv, i) => {
     const cols = [inv.primaryColumn, inv.secondaryColumn].filter(Boolean);
+    const safeInv = JSON.stringify(inv).replace(/"/g, '&quot;').replace(/'/g, '&apos;');
     return `
-      <div class="investigation-card" onclick='loadInvestigation(${JSON.stringify(inv).replace(/'/g, "&apos;")})'>
+      <div class="investigation-card" onclick="loadInvestigation(JSON.parse(this.dataset.inv))" data-inv="${safeInv}">
         <div class="inv-rank">Investigation ${i + 1}</div>
         <div class="inv-headline">${escapeHtml(inv.headline || '')}</div>
         <div class="inv-meta">
           ${cols.map(c => `<span class="inv-tag">${escapeHtml(c)}</span>`).join('')}
           ${inv.chartType ? `<span class="inv-tag chart">${escapeHtml(inv.chartType)}</span>` : ''}
         </div>
+        <div class="inv-chart"><canvas id="inv-chart-${i}"></canvas></div>
         <div class="inv-reason">${escapeHtml(inv.reason || '')}</div>
+        <div class="inv-expand-hint">Click to expand →</div>
       </div>
     `;
   }).join('') || `<div style="color:var(--text-dim); font-size:0.82rem">No investigations surfaced.</div>`;
@@ -2334,6 +2654,198 @@ function renderInterrogation(result) {
       <div class="cant-why">${escapeHtml(c.why || '')}</div>
     </div>
   `).join('') || `<div style="color:var(--text-dim); font-size:0.82rem">No gaps surfaced.</div>`;
+
+  // Render mini charts in each investigation card
+  investigations.forEach((inv, i) => {
+    const canvasEl = document.getElementById(`inv-chart-${i}`);
+    if (!canvasEl) return;
+    try {
+      const ch = renderMiniChart(canvasEl, inv);
+      if (ch) miniCharts.push(ch);
+    } catch (err) {
+      const wrap = canvasEl.parentElement;
+      if (wrap) wrap.innerHTML = `<div class="inv-chart-empty">Chart unavailable</div>`;
+    }
+  });
+}
+
+// Render a compact preview chart inside an investigation card.
+// Returns the Chart.js instance (so caller can dispose it later) or null.
+function renderMiniChart(canvasEl, inv) {
+  const data = state.data;
+  if (!data || !data.length) return null;
+
+  const primaryCol = inv.primaryColumn;
+  const secondaryCol = inv.secondaryColumn;
+  const colInfo = state.columns.find(c => c.name === primaryCol);
+  if (!colInfo) return null;
+
+  const requestedType = (inv.chartType || '').toLowerCase();
+  const ctx = canvasEl.getContext('2d');
+  let config;
+
+  // Date primary + numeric secondary → line chart (time series).
+  // This is the natural climate / time-series viz.
+  if (colInfo.type === 'date' && secondaryCol
+      && state.columns.some(c => c.name === secondaryCol && c.type === 'numeric')) {
+    const rows = data
+      .map(r => ({ x: r[primaryCol], y: r[secondaryCol] }))
+      .filter(p => p.x != null && typeof p.y === 'number');
+    if (!rows.length) return null;
+    config = {
+      type: 'line',
+      data: {
+        labels: rows.map(r => r.x),
+        datasets: [{
+          data: rows.map(r => r.y),
+          borderColor: 'rgba(124,106,247,1)',
+          backgroundColor: 'rgba(124,106,247,0.15)',
+          borderWidth: 1.5,
+          pointRadius: 0,
+          fill: true,
+          tension: 0.2,
+        }]
+      },
+      options: miniChartOptions({ axes: { x: primaryCol, y: secondaryCol }, scatter: true })
+    };
+  }
+  // Date primary alone → density-style line of frequency-by-day.
+  // Rare (AI usually pairs date with a metric) but possible.
+  else if (colInfo.type === 'date') {
+    const counts = {};
+    data.forEach(r => {
+      const v = r[primaryCol];
+      if (v != null && v !== '') counts[v] = (counts[v] || 0) + 1;
+    });
+    const sorted = Object.entries(counts).sort((a, b) => String(a[0]).localeCompare(String(b[0])));
+    if (!sorted.length) return null;
+    config = {
+      type: 'line',
+      data: {
+        labels: sorted.map(([k]) => k),
+        datasets: [{
+          data: sorted.map(([_, c]) => c),
+          borderColor: 'rgba(124,106,247,1)',
+          backgroundColor: 'rgba(124,106,247,0.15)',
+          borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.2,
+        }]
+      },
+      options: miniChartOptions({ axes: { x: primaryCol, y: 'count' }, scatter: true })
+    };
+  }
+  // Scatter / bubble: numeric × numeric
+  else if ((requestedType === 'scatter' || requestedType === 'bubble') && secondaryCol
+      && state.columns.some(c => c.name === secondaryCol)) {
+    const pts = data
+      .map(r => ({ x: r[primaryCol], y: r[secondaryCol] }))
+      .filter(p => typeof p.x === 'number' && typeof p.y === 'number');
+    if (!pts.length) return null;
+
+    // Color outliers in either axis differently so each scatter has its own shape
+    const xs = pts.map(p => p.x);
+    const ys = pts.map(p => p.y);
+    const xStats = quickStats(xs);
+    const yStats = quickStats(ys);
+    const isOut = p => p.x < xStats.lo || p.x > xStats.hi || p.y < yStats.lo || p.y > yStats.hi;
+    const colors = pts.map(p => isOut(p) ? 'rgba(247,168,106,0.95)' : 'rgba(124,106,247,0.6)');
+    const radii = pts.map(p => isOut(p) ? 3.5 : 2.5);
+
+    config = {
+      type: 'scatter',
+      data: { datasets: [{ data: pts, backgroundColor: colors, pointRadius: radii, borderWidth: 0 }] },
+      options: miniChartOptions({ axes: { x: primaryCol, y: secondaryCol }, scatter: true })
+    };
+  }
+  // Numeric primary → histogram
+  else if (colInfo.type === 'numeric') {
+    const vals = data.map(r => r[primaryCol]).filter(v => typeof v === 'number' && !isNaN(v));
+    if (!vals.length) return null;
+    const min = Math.min(...vals), max = Math.max(...vals);
+    const span = max - min || 1;
+    const binCount = 14;
+    const binWidth = span / binCount;
+    const bins = Array(binCount).fill(0);
+    vals.forEach(v => {
+      const idx = Math.min(Math.floor((v - min) / binWidth), binCount - 1);
+      bins[idx]++;
+    });
+    config = {
+      type: 'bar',
+      data: {
+        labels: bins.map((_, i) => fmt(min + i * binWidth)),
+        datasets: [{ data: bins, backgroundColor: 'rgba(124,106,247,0.85)', borderWidth: 0, barPercentage: 0.98, categoryPercentage: 1 }]
+      },
+      options: miniChartOptions()
+    };
+  }
+  // Categorical primary → top-N bar of counts
+  else {
+    const counts = {};
+    data.forEach(r => {
+      const v = r[primaryCol];
+      if (v != null && v !== '') counts[v] = (counts[v] || 0) + 1;
+    });
+    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+    if (!sorted.length) return null;
+    config = {
+      type: 'bar',
+      data: {
+        labels: sorted.map(([k]) => String(k)),
+        datasets: [{ data: sorted.map(([_, c]) => c), backgroundColor: 'rgba(124,106,247,0.85)', borderWidth: 0 }]
+      },
+      options: miniChartOptions()
+    };
+  }
+
+  return new Chart(ctx, config);
+}
+
+function miniChartOptions(opts = {}) {
+  const tickStyle = {
+    color: '#6a6a7a',
+    font: { size: 8 },
+    maxRotation: 0,
+    autoSkip: true,
+    autoSkipPadding: 8,
+  };
+  const titleStyle = {
+    display: !!opts.axes,
+    color: '#7a7a8c',
+    font: { size: 9, weight: 500 },
+    padding: 0,
+  };
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: false,
+    plugins: { legend: { display: false }, tooltip: { enabled: false } },
+    layout: { padding: { top: 4, right: 6, bottom: 0, left: 0 } },
+    scales: opts.scatter ? {
+      x: {
+        title: { ...titleStyle, text: opts.axes?.x || '' },
+        ticks: tickStyle,
+        grid: { color: 'rgba(255,255,255,0.04)', drawTicks: false },
+        border: { display: false },
+      },
+      y: {
+        title: { ...titleStyle, text: opts.axes?.y || '' },
+        ticks: tickStyle,
+        grid: { color: 'rgba(255,255,255,0.04)', drawTicks: false },
+        border: { display: false },
+      }
+    } : {
+      x: { display: false, grid: { display: false } },
+      y: { display: false, grid: { display: false } }
+    }
+  };
+}
+
+// Lightweight outlier band (1.5 × IQR) for mini-chart highlighting.
+function quickStats(arr) {
+  const sorted = [...arr].sort((a, b) => a - b);
+  const q = p => sorted[Math.floor(p * (sorted.length - 1))];
+  const q1 = q(0.25), q3 = q(0.75), iqr = q3 - q1;
+  return { lo: q1 - 1.5 * iqr, hi: q3 + 1.5 * iqr };
 }
 
 function escapeHtml(s) {
@@ -2374,8 +2886,66 @@ function loadInvestigation(inv) {
     state.activeYCol = secondary;
   }
 
+  // Remember which investigation is active so we can render the details banner
+  // and let the user navigate back.
+  const idx = (state.interrogation?.investigations || []).indexOf(inv);
+  state.activeInvestigation = inv;
+  state.activeInvestigationIdx = idx >= 0 ? idx : null;
+
   dismissInterrogation();
   selectColumn(primary);
+  showInvestigationDetails();
+}
+
+// Render the details banner for the currently-active investigation.
+function showInvestigationDetails() {
+  const inv = state.activeInvestigation;
+  const banner = document.getElementById('investigation-details');
+  if (!banner) return;
+  if (!inv) { banner.style.display = 'none'; return; }
+
+  const idx = state.activeInvestigationIdx;
+  document.getElementById('inv-details-rank').textContent = idx != null
+    ? `Investigation ${String(idx + 1).padStart(2, '0')}`
+    : 'Investigation';
+  document.getElementById('inv-details-headline').textContent = inv.headline || '';
+  document.getElementById('inv-details-reason').textContent = inv.reason || '';
+
+  const bullets = document.getElementById('inv-details-bullets');
+  const items = Array.isArray(inv.whatToLookFor) ? inv.whatToLookFor : [];
+  bullets.innerHTML = items.map(b => `<li>${escapeHtml(b)}</li>`).join('');
+  bullets.style.display = items.length ? 'block' : 'none';
+
+  banner.style.display = 'flex';
+}
+
+// Re-show the interrogation panel from cached state. No new AI call.
+function showInterrogation() {
+  // Hide the details banner
+  const banner = document.getElementById('investigation-details');
+  if (banner) banner.style.display = 'none';
+  state.activeInvestigation = null;
+  state.activeInvestigationIdx = null;
+
+  // Hide the active chart placeholder so the panel is the only visible thing
+  const placeholder = document.querySelector('#chart-wrap .chart-placeholder');
+  if (placeholder) placeholder.style.display = 'none';
+
+  // Show the interrogation panel
+  const panel = document.getElementById('interrogation-panel');
+  if (!panel) return;
+  panel.style.display = 'block';
+
+  // If we have cached results, just re-render them; otherwise re-run.
+  if (state.interrogation) {
+    document.getElementById('interrog-loading').style.display = 'none';
+    document.getElementById('interrog-error').style.display = 'none';
+    document.getElementById('interrog-nokey').style.display = 'none';
+    document.getElementById('interrog-content').style.display = 'block';
+    renderInterrogation(state.interrogation);
+  } else {
+    runInterrogation();
+  }
 }
 
 function dismissInterrogation() {
@@ -2391,41 +2961,29 @@ function dismissInterrogation() {
 
 // ─── Editorial Intent panel ───────────────────────────────────────────────────
 function onIntentChange() {
-  state.intent.audience = document.getElementById('intent-audience').value;
-  state.intent.lens     = document.getElementById('intent-lens').value;
-  state.intent.question = document.getElementById('intent-question').value.trim();
-  state.intent.context  = document.getElementById('intent-context').value.trim();
-  // keyFields kept in sync via toggleKeyField
-  updateIntentStatus();
+  // Editorial Intent UI removed; chat sidebar is the new input. Function kept
+  // so any cached event handlers don't throw — and so future re-introduction
+  // of structured fields is a one-line revert.
+  const a = document.getElementById('intent-audience');
+  const l = document.getElementById('intent-lens');
+  const q = document.getElementById('intent-question');
+  const c = document.getElementById('intent-context');
+  if (a) state.intent.audience = a.value;
+  if (l) state.intent.lens = l.value;
+  if (q) state.intent.question = q.value.trim();
+  if (c) state.intent.context = c.value.trim();
 }
 
 function updateIntentStatus() {
-  const i = state.intent;
-  const filledCount = [i.audience, i.lens, i.question, i.context].filter(Boolean).length
-    + (i.keyFields?.length ? 1 : 0);
   const el = document.getElementById('intent-status');
-  if (filledCount === 0) {
-    el.textContent = 'Generic';
-    el.classList.remove('controlled');
-  } else if (filledCount < 3) {
-    el.textContent = `Partial · ${filledCount}/5`;
-    el.classList.remove('controlled');
-  } else {
-    el.textContent = `Controlled · ${filledCount}/5`;
-    el.classList.add('controlled');
-  }
+  if (!el) return;
+  // (legacy — UI no longer surfaces this)
 }
 
 function populateIntentKeyFields() {
   const container = document.getElementById('intent-keyfields');
-  const wrap = document.getElementById('intent-keyfields-wrap');
-  if (!state.columns.length) { wrap.style.display = 'none'; return; }
-  wrap.style.display = 'block';
-  state.intent.keyFields = []; // reset on new dataset
-  container.innerHTML = state.columns.map(c =>
-    `<span class="keyfield-chip" data-col="${c.name}" onclick="toggleKeyField('${c.name.replace(/'/g, "\\'")}', this)">${c.name}</span>`
-  ).join('');
-  updateIntentStatus();
+  if (!container) return;
+  // (legacy — UI no longer surfaces this)
 }
 
 function toggleKeyField(col, el) {
