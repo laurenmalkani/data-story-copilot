@@ -855,7 +855,79 @@
     }
     .inv-details-bullets li::marker { color: var(--accent); }
 
+    /* ─── Synthetic-data warning card ─────────────────────── */
+    .synthetic-warning {
+      display: flex; gap: 16px; align-items: flex-start;
+      padding: 20px 22px;
+      background: linear-gradient(135deg, rgba(247,168,106,0.12), rgba(247,106,143,0.06));
+      border: 1px solid rgba(247,168,106,0.45);
+      border-left: 4px solid #f7a86a;
+      border-radius: 10px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 24px rgba(247,168,106,0.08);
+    }
+    .synthetic-warning.severity-high {
+      background: linear-gradient(135deg, rgba(247,106,106,0.16), rgba(247,106,143,0.08));
+      border-color: rgba(247,106,106,0.6);
+      border-left-color: #f76a6a;
+    }
+    .synthetic-warning.severity-medium {
+      background: linear-gradient(135deg, rgba(247,168,106,0.12), rgba(247,200,106,0.06));
+      border-color: rgba(247,168,106,0.45);
+      border-left-color: #f7a86a;
+    }
+    .synthetic-warning.severity-low {
+      background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      border-color: var(--border);
+      border-left-color: var(--text-muted);
+    }
+    .synthetic-warning .sw-icon {
+      font-size: 1.6rem;
+      line-height: 1;
+      flex-shrink: 0;
+      color: #f7a86a;
+    }
+    .synthetic-warning.severity-high .sw-icon { color: #f76a6a; }
+    .synthetic-warning.severity-low .sw-icon { color: var(--text-muted); }
+    .synthetic-warning .sw-body { flex: 1; min-width: 0; }
+    .synthetic-warning .sw-title {
+      font-size: 0.95rem; font-weight: 700; color: var(--text);
+      letter-spacing: -0.01em; margin-bottom: 4px;
+    }
+    .synthetic-warning .sw-subtitle {
+      font-size: 0.74rem; text-transform: uppercase;
+      letter-spacing: 0.08em; color: #f7a86a;
+      font-weight: 600; margin-bottom: 10px;
+    }
+    .synthetic-warning.severity-high .sw-subtitle { color: #f76a6a; }
+    .synthetic-warning.severity-low .sw-subtitle { color: var(--text-muted); }
+    .synthetic-warning .sw-reasons {
+      margin: 8px 0 12px 18px; padding: 0; list-style: disc;
+    }
+    .synthetic-warning .sw-reasons li {
+      font-size: 0.8rem; color: var(--text-muted);
+      line-height: 1.55; margin-bottom: 4px;
+    }
+    .synthetic-warning .sw-reasons li::marker { color: #f7a86a; }
+    .synthetic-warning.severity-high .sw-reasons li::marker { color: #f76a6a; }
+    .synthetic-warning .sw-advice {
+      font-size: 0.8rem; color: var(--text);
+      padding: 8px 12px;
+      background: rgba(0,0,0,0.25);
+      border-radius: 6px;
+      border-left: 2px solid rgba(255,255,255,0.15);
+    }
+
     /* ─── Dataset Interrogation panel ─────────────────────── */
+    #interrogation-panel {
+      /* Overlay the entire chart-area (toolbar + chart + bottom strip).
+         Mounted as a sibling of chart-wrap; chart-area is position:relative. */
+      position: absolute; inset: 0;
+      z-index: 50;
+      background: var(--bg);
+    }
+    .chart-area { position: relative; }
+
     #interrogation-screen {
       display: none; min-height: calc(100vh - 53px);
       padding: 40px 32px; max-width: 1100px; margin: 0 auto;
@@ -1044,7 +1116,9 @@
 
   <div class="sample-datasets">
     <span class="sample-label">Try a sample dataset</span>
-    <span class="sample-chip" data-sample="disasters" onclick="loadSample('disasters')" title="Last 200 federal disaster declarations from the FEMA OpenFEMA API">🌀 FEMA disasters</span>
+    <span class="sample-chip" data-sample="mobility" onclick="loadSample('mobility')" title="NYC Citywide Mobility Survey 2024 — household travel diary (20,785 day-records)">🗽 NYC mobility 2024</span>
+    <span class="sample-chip" data-sample="droid" onclick="loadSample('droid')" title="DROID 1.0.1 — 138k robot training episodes from 13 universities (Khazatsky et al. 2024)">🤖 DROID episodes</span>
+    <span class="sample-chip" data-sample="droid_sample" onclick="loadSample('droid_sample')" title="DROID 1.0.1 — 10,000 random frame-level rows with the full 33-column schema (sampled live from HuggingFace)">🤖 DROID frames (10k)</span>
     <span class="sample-chip" data-sample="climate" onclick="loadSample('climate')" title="Baltimore daily climate 2019-2024 from Copernicus ERA5 (via Open-Meteo)">🌎 Climate (Copernicus)</span>
     <span class="sample-chip" data-sample="earthquakes" onclick="loadSample('earthquakes')" title="Global M4.5+ earthquakes past 30 days from USGS">🌐 USGS earthquakes</span>
   </div>
@@ -1108,46 +1182,55 @@
         </div>
       </div>
       <div class="chart-canvas-wrap" id="chart-wrap">
-        <div id="interrogation-panel" style="display:none; padding:24px 28px; overflow:auto; height:100%;">
-          <div class="interrog-header">
-            <h2>What's <span class="gradient">worth investigating</span> in this data?</h2>
-            <p>Claude scanned the structure and surface — here's what stands out before you click anything. Pick an investigation or explore on your own.</p>
-          </div>
-          <div id="interrog-loading" class="interrog-loading">
-            <div class="spinner"></div>
-            <p>Claude is reading the data…</p>
-          </div>
-          <div id="interrog-content" style="display:none">
-            <div class="interrog-grid">
-              <div class="interrog-section">
-                <h3>★ Worth investigating</h3>
-                <div id="investigation-list"></div>
-              </div>
-              <div class="interrog-section">
-                <h3>⚠ Questions this data can't answer</h3>
-                <div id="cant-answer-list"></div>
-              </div>
-            </div>
-            <div class="interrog-actions">
-              <button class="btn-interrog-rerun" onclick="runInterrogation(true)">↻ Re-run with editorial intent</button>
-              <button class="btn-interrog-skip" onclick="dismissInterrogation()">Explore on my own →</button>
-            </div>
-          </div>
-          <div id="interrog-error" style="display:none; padding:30px 0; text-align:center;">
-            <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:14px" id="interrog-error-msg">—</p>
-            <button class="btn-interrog-skip" onclick="dismissInterrogation()">Continue without AI →</button>
-          </div>
-          <div id="interrog-nokey" style="display:none; padding:30px 0; text-align:center;">
-            <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:14px">Add your Claude API key to surface AI-driven investigations.</p>
-            <div style="display:flex; gap:10px; justify-content:center">
-              <button class="btn-modal-save" onclick="openSettings()" style="padding:10px 20px">Add API key</button>
-              <button class="btn-interrog-skip" onclick="dismissInterrogation()">Skip and explore →</button>
-            </div>
-          </div>
-        </div>
         <div class="chart-placeholder">
           <div class="icon">◈</div>
           <p>Select a column to explore</p>
+        </div>
+      </div>
+      <div id="interrogation-panel" style="display:none; padding:24px 28px; overflow:auto;">
+        <div id="synthetic-warning" class="synthetic-warning" style="display:none">
+          <div class="sw-icon">⚠</div>
+          <div class="sw-body">
+            <div class="sw-title" id="sw-title">Verify the source before drawing conclusions</div>
+            <div class="sw-subtitle" id="sw-subtitle">—</div>
+            <ul class="sw-reasons" id="sw-reasons"></ul>
+            <div class="sw-advice" id="sw-advice">—</div>
+          </div>
+        </div>
+        <div class="interrog-header">
+          <h2>What's <span class="gradient">worth investigating</span> in this data?</h2>
+          <p>Claude scanned the structure and surface — here's what stands out before you click anything. Pick an investigation or explore on your own.</p>
+        </div>
+        <div id="interrog-loading" class="interrog-loading">
+          <div class="spinner"></div>
+          <p>Claude is reading the data…</p>
+        </div>
+        <div id="interrog-content" style="display:none">
+          <div class="interrog-grid">
+            <div class="interrog-section">
+              <h3>★ Worth investigating</h3>
+              <div id="investigation-list"></div>
+            </div>
+            <div class="interrog-section">
+              <h3>⚠ Questions this data can't answer</h3>
+              <div id="cant-answer-list"></div>
+            </div>
+          </div>
+          <div class="interrog-actions">
+            <button class="btn-interrog-rerun" onclick="runInterrogation(true)">↻ Re-run with editorial intent</button>
+            <button class="btn-interrog-skip" onclick="dismissInterrogation()">Explore on my own →</button>
+          </div>
+        </div>
+        <div id="interrog-error" style="display:none; padding:30px 0; text-align:center;">
+          <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:14px" id="interrog-error-msg">—</p>
+          <button class="btn-interrog-skip" onclick="dismissInterrogation()">Continue without AI →</button>
+        </div>
+        <div id="interrog-nokey" style="display:none; padding:30px 0; text-align:center;">
+          <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:14px">Add your Claude API key to surface AI-driven investigations.</p>
+          <div style="display:flex; gap:10px; justify-content:center">
+            <button class="btn-modal-save" onclick="openSettings()" style="padding:10px 20px">Add API key</button>
+            <button class="btn-interrog-skip" onclick="dismissInterrogation()">Skip and explore →</button>
+          </div>
         </div>
       </div>
       <div id="angles-strip" style="display:none; border-top:1px solid var(--border); background:var(--surface); overflow-x:auto; flex-shrink:0">
@@ -1306,40 +1389,38 @@ ${sample}`;
 // `transform` that reshapes the response (used when the API returns JSON
 // rather than CSV).
 const SAMPLES = {
-  disasters: {
-    name: 'fema_disasters.csv',
-    source: 'FEMA OpenFEMA',
-    url: 'https://www.fema.gov/api/open/v2/DisasterDeclarationsSummaries?$top=500&$orderby=declarationDate%20desc',
-    format: 'json',
-    transform: (json) => {
-      const rows = json.DisasterDeclarationsSummaries || [];
-      // Keep journalism-relevant columns; drop FEMA's internal IDs / flags.
-      const cols = [
-        'declarationDate', 'state', 'incidentType', 'declarationType',
-        'declarationTitle', 'designatedArea', 'region',
-        'fyDeclared', 'incidentBeginDate', 'incidentEndDate',
-        'ihProgramDeclared', 'iaProgramDeclared',
-        'paProgramDeclared', 'hmProgramDeclared',
-      ];
-      const escape = (v) => {
-        if (v == null) return '';
-        const s = String(v);
-        return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-      };
-      const header = cols.join(',');
-      const body = rows.map(r => cols.map(c => escape(r[c])).join(',')).join('\n');
-      return header + '\n' + body;
-    },
+  mobility: {
+    name: 'nyc_mobility_2024.csv',
+    source: 'NYC DOT · Citywide Mobility Survey (Day 2024)',
+    trusted: true,
+    url: 'data/nyc_mobility_2024.csv',
+    format: 'csv',
+  },
+  droid: {
+    name: 'droid_episodes.csv',
+    source: 'DROID 1.0.1 (Khazatsky et al. 2024) via HuggingFace lerobot port',
+    trusted: true,
+    url: 'data/droid_episodes.csv',
+    format: 'csv',
+  },
+  droid_sample: {
+    name: 'droid_sample_10k.csv',
+    source: 'DROID 1.0.1 (random 0.025% frame-level sample) via HuggingFace lerobot port',
+    trusted: true,
+    url: 'data/droid_sample_10k.csv',
+    format: 'csv',
   },
   climate: {
     name: 'baltimore_climate_2019_2024.csv',
     source: 'Copernicus ERA5 via Open-Meteo',
+    trusted: true,
     url: 'https://archive-api.open-meteo.com/v1/archive?latitude=39.29&longitude=-76.61&start_date=2019-01-01&end_date=2024-01-01&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max&timezone=America%2FNew_York&format=csv',
     format: 'csv',
   },
   earthquakes: {
     name: 'usgs_quakes_M4.5_past_month.csv',
     source: 'USGS Earthquake Hazards Program',
+    trusted: true,
     url: 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_month.csv',
     format: 'csv',
   },
@@ -1395,6 +1476,10 @@ async function loadSample(key) {
     });
     if (!parsed.data?.length) throw new Error('Empty result from API');
 
+    // Mark this dataset as coming from a trusted, authoritative source so the
+    // AI interrogation skips the synthetic-data warning.
+    state.trustedSource = !!s.trusted;
+    state.sourceName = s.source || null;
     processData(parsed.data, s.name);
   } catch (err) {
     if (chip) {
@@ -1437,6 +1522,10 @@ fileInput.addEventListener('change', e => { if (e.target.files[0]) parseFile(e.t
 // (upload-fab removed)
 
 function parseFile(file) {
+  // User uploads are not trusted by default — the synthetic-data warning
+  // can fire if the AI sees suspicious patterns.
+  state.trustedSource = false;
+  state.sourceName = null;
   Papa.parse(file, {
     header: true, dynamicTyping: true, skipEmptyLines: true,
     complete: r => processData(r.data, file.name),
@@ -1704,11 +1793,39 @@ function buildChartTabs(type) {
     options = [{ id: 'map', label: '◎ Map', recommended: true }];
     state.chartType = 'map';
   } else {
+    // Categorical or date primary column.
     options = [
       { id: 'bar', label: '▬ Bar', recommended: true },
       { id: 'pie', label: '◔ Pie' },
     ];
     if (hasGeo) options.push({ id: 'map', label: '◎ Map' });
+
+    const numCols = state.columns.filter(c => c.type === 'numeric').map(c => c.name);
+    if (numCols.length >= 1) {
+      // Add scatter and line — both consume numeric Y vs the active (cat/date) X.
+      options.push({ id: 'scatter', label: '⬡ Scatter' });
+    }
+    if (type === 'date' && numCols.length >= 1) {
+      options.push({ id: 'line', label: '↗ Line' });
+    }
+
+    // Populate axis selects so the user can pick X (any) and Y (numeric).
+    const catCols = state.columns.filter(c => c.type === 'categorical' || c.type === 'date').map(c => c.name);
+    const xSel = document.getElementById('x-select');
+    const ySel = document.getElementById('y-select');
+    const sizeSel = document.getElementById('size-select');
+
+    const preX = state.activeXCol;
+    const preY = state.activeYCol;
+    const xDefault = preX && [...catCols, ...numCols].includes(preX) ? preX : state.activeColumn;
+    const yDefault = preY && numCols.includes(preY) ? preY : numCols[0];
+
+    xSel.innerHTML = [...catCols, ...numCols].map(c => `<option value="${c}" ${c === xDefault ? 'selected':''}>${c}</option>`).join('');
+    ySel.innerHTML = numCols.map(c => `<option value="${c}" ${c === yDefault ? 'selected':''}>${c}</option>`).join('');
+    sizeSel.innerHTML = numCols.map(c => `<option value="${c}">${c}</option>`).join('');
+    state.activeXCol = xSel.value;
+    state.activeYCol = ySel.value;
+    state.activeSizeCol = sizeSel.value;
   }
 
   // Ensure active chart type is valid
@@ -2489,16 +2606,60 @@ async function sendChatMessage() {
   const thinkingEl = addChatMessage('assistant', 'Thinking…', 'thinking');
 
   // Build the conversation payload. System prompt anchors Claude to the
-  // current dataset so the user can ask questions in plain language.
+  // current dataset AND the user's current viewing context — active column,
+  // axes, chart type, stats, and any highlighted insight or investigation.
   const snap = state.data ? buildDatasetSnapshot(8) : '(no dataset loaded yet)';
+
+  // Stats for the active column (skip if no data or no active column)
+  let activeStats = '';
+  if (state.activeColumn && state.data) {
+    const colInfo = state.columns.find(c => c.name === state.activeColumn);
+    if (colInfo) {
+      try {
+        const s = getStats(state.activeColumn, state.data, colInfo.type);
+        if (colInfo.type === 'numeric') {
+          activeStats = `\nStats for "${state.activeColumn}" (numeric): mean=${fmt(s.mean)}, median=${fmt(s.median)}, min=${fmt(s.min)}, max=${fmt(s.max)}, outliers=${s.outliers.length}, nulls=${s.nullCount}, rows=${s.count}`;
+        } else if (colInfo.type === 'categorical' && s.topValues?.length) {
+          activeStats = `\nStats for "${state.activeColumn}" (categorical): ${s.uniqueCount} unique values, top: ${s.topValues.slice(0,5).map(([v,c])=>`${v} (${c})`).join(', ')}`;
+        } else if (colInfo.type === 'geo') {
+          activeStats = `\nStats for "${state.activeColumn}" (geo): ${s.count} regions${s.uniqueCount ? `, ${s.uniqueCount} unique` : ''}`;
+        }
+      } catch (_) { /* getStats may fail on edge cases; skip silently */ }
+    }
+  }
+
+  // Axes and overlay context
+  const axisCtx = [];
+  if (state.activeXCol) axisCtx.push(`X axis: ${state.activeXCol}`);
+  if (state.activeYCol && ['scatter','bubble'].includes(state.chartType)) axisCtx.push(`Y axis: ${state.activeYCol}`);
+  if (state.activeSizeCol && state.chartType === 'bubble') axisCtx.push(`Size: ${state.activeSizeCol}`);
+  if (state.overlayColumn) axisCtx.push(`Overlay: ${state.overlayColumn}`);
+  if (state.chartType === 'map') axisCtx.push(`Map value: ${state.mapValueCol || 'count of rows'}, binning: ${state.binMethod}, color: ${state.colorScheme}`);
+
+  // Highlighted insight in the top strip
+  let highlightCtx = '';
+  if (state.activeInsightIdx != null && state.topAngles?.[state.activeInsightIdx]) {
+    const a = state.topAngles[state.activeInsightIdx];
+    highlightCtx = `\nHighlighted insight on screen: "${a.label}" — ${a.headline}. ${a.body}`;
+  }
+
+  // Active investigation (if user expanded one from the panel)
+  let invCtx = '';
+  if (state.activeInvestigation) {
+    const inv = state.activeInvestigation;
+    invCtx = `\nUser is currently exploring investigation: "${inv.headline}". Reason: ${inv.reason || '(none)'}.${inv.whatToLookFor?.length ? ` What to look for: ${inv.whatToLookFor.join('; ')}` : ''}`;
+  }
+
   const system = `You are a data-savvy editorial copilot helping a journalist make sense of a dataset they've loaded into a visualizer.
 
-Be concise (2-4 sentences max). When suggesting a chart, reference column names from the snapshot exactly. When suggesting a filter or transformation, describe it in plain language. Don't invent columns. If the data can't answer something, say so directly.
+Be concise (2-4 sentences max). When suggesting a chart, reference column names from the snapshot exactly. When suggesting a filter or transformation, describe it in plain language. Don't invent columns. If the data can't answer something, say so directly. The user can see the chart on screen — ground your answers in WHAT THEY ARE LOOKING AT right now, not just the raw dataset.
 
-Active column: ${state.activeColumn || '(none selected)'}
-Current chart: ${state.chartType}
+CURRENT VIEW:
+- Active column: ${state.activeColumn || '(none selected)'}
+- Chart type: ${state.chartType}
+${axisCtx.length ? '- ' + axisCtx.join('\n- ') : ''}${activeStats}${highlightCtx}${invCtx}
 
-Dataset snapshot:
+Dataset snapshot (full dataset has ${state.data?.length?.toLocaleString() ?? '?'} rows total):
 ${snap}`;
 
   // Cap history sent so we don't blow up tokens
@@ -2566,16 +2727,44 @@ async function runInterrogation(forceRerun = false) {
   if (i.keyFields?.length) intentLines.push(`Key fields: ${i.keyFields.join(', ')}`);
   const intentBlock = intentLines.length ? `\n\nEditorial intent:\n${intentLines.join('\n')}` : '';
 
-  const prompt = `You are an editorial data interrogator helping a journalist before they pick an angle.
+  const trustNote = state.trustedSource
+    ? `\n\nNOTE: This dataset comes from a trusted authoritative source (${state.sourceName || 'a verified public agency'}). Skip the veracity check — set syntheticAssessment.verdict to "real" and skip detailed reasons. Focus on investigations.\n`
+    : '';
 
-Look at this dataset and surface what's WORTH INVESTIGATING — the unexpected relationships, distributions, or contrasts that an experienced reporter would dig into. Don't list obvious things ("X is the average"). Find tension.
+  const prompt = `You are an editorial data interrogator helping a journalist before they pick an angle.${trustNote}
 
-Also flag what this data CAN'T answer — questions a reader might naturally ask but the columns simply don't support.
+THREE jobs, in order:
+
+1. **Veracity check first.** Examine the snapshot and judge whether this dataset is likely SYNTHETIC, FABRICATED, or otherwise UNTRUSTWORTHY for journalism. Red flags include:
+   - Suspiciously uniform distributions (every value equally likely)
+   - No nulls / no missing data anywhere
+   - Round-number ranges (always 1-10, 0-100 with no outliers)
+   - Generic schema-like column names with no source documentation
+   - Categorical values too evenly distributed
+   - All numeric columns with implausibly similar variance
+   - Values that look generated (e.g. addiction_level=integers 1-10 with perfect coverage)
+   - Tabular data with a label/target column (depression_label, etc.) hinting at ML training data
+   - Kaggle-style "studies" with no methodology citation
+   If there's any reasonable suspicion, set verdict to "likely_synthetic". Real-world data is messy. If you can't tell, say "uncertain".
+
+2. **Investigations.** Surface what's WORTH INVESTIGATING — unexpected relationships, distributions, or contrasts an experienced reporter would dig into. Find tension. BUT if the data is likely synthetic, frame investigations as "patterns to verify if this were real" and avoid confident causal claims.
+
+3. **Gaps.** Flag what this data CAN'T answer — questions a reader would naturally ask but the columns don't support.
 
 ${snap}${intentBlock}
 
 Return raw JSON only, no markdown:
 {
+  "syntheticAssessment": {
+    "verdict": "real" | "likely_synthetic" | "uncertain",
+    "severity": "high" | "medium" | "low",
+    "reasons": [
+      "Concrete evidence — cite columns, values, distributions",
+      "Another specific reason",
+      "A third if applicable"
+    ],
+    "advice": "One sentence on what the journalist should do (e.g., 'Find the source documentation before drawing any conclusions')"
+  },
   "investigations": [
     {
       "headline": "Short, specific finding (e.g. 'Counties with high turnout cluster in low-income areas')",
@@ -2598,7 +2787,7 @@ Return raw JSON only, no markdown:
   ]
 }
 
-Provide 4 investigations (each with 2-3 whatToLookFor bullets) and 3 cantAnswer items. primaryColumn must match a real column name from the snapshot above.`;
+Provide syntheticAssessment, 4 investigations (each with 2-3 whatToLookFor bullets), and 3 cantAnswer items. primaryColumn must match a real column name from the snapshot above.`;
 
   try {
     const { text } = await callClaude(prompt, { max_tokens: 2000 });
@@ -2627,6 +2816,9 @@ function renderInterrogation(result) {
   // Tear down any previous mini charts to avoid leaks
   miniCharts.forEach(c => { try { c.destroy(); } catch(_) {} });
   miniCharts = [];
+
+  // Synthetic-data warning card (always render the container, hide if "real")
+  renderSyntheticWarning(result.syntheticAssessment);
 
   const investigations = result.investigations || [];
 
@@ -2848,6 +3040,51 @@ function quickStats(arr) {
   return { lo: q1 - 1.5 * iqr, hi: q3 + 1.5 * iqr };
 }
 
+// Render or hide the synthetic-data warning card based on AI's veracity verdict.
+function renderSyntheticWarning(assessment) {
+  const card = document.getElementById('synthetic-warning');
+  if (!card) return;
+
+  // Trusted sources (FEMA, USGS, NOAA, Copernicus, etc. loaded via the chips)
+  // skip the warning entirely — they're authoritative public data, not synthetic.
+  if (state.trustedSource) {
+    card.style.display = 'none';
+    return;
+  }
+
+  // No assessment, or AI is confident the data is real → no warning shown.
+  if (!assessment || assessment.verdict === 'real') {
+    card.style.display = 'none';
+    return;
+  }
+
+  const verdict = assessment.verdict; // 'likely_synthetic' | 'uncertain'
+  const severity = assessment.severity || (verdict === 'likely_synthetic' ? 'high' : 'medium');
+  card.className = `synthetic-warning severity-${severity}`;
+  card.style.display = 'flex';
+
+  // Title varies by verdict so the framing matches the strength of suspicion.
+  const title = verdict === 'likely_synthetic'
+    ? 'This dataset appears to be synthetic'
+    : "Source can't be verified from the data alone";
+  const subtitle = verdict === 'likely_synthetic'
+    ? `Veracity check · ${severity.toUpperCase()} risk for publication`
+    : 'Veracity check · Verify before drawing conclusions';
+
+  document.getElementById('sw-title').textContent = title;
+  document.getElementById('sw-subtitle').textContent = subtitle;
+
+  const reasonsEl = document.getElementById('sw-reasons');
+  const reasons = Array.isArray(assessment.reasons) ? assessment.reasons : [];
+  reasonsEl.innerHTML = reasons.length
+    ? reasons.map(r => `<li>${escapeHtml(r)}</li>`).join('')
+    : '<li>The AI flagged this dataset but did not provide specific reasons.</li>';
+
+  const adviceEl = document.getElementById('sw-advice');
+  adviceEl.textContent = assessment.advice
+    || 'Find the source documentation and methodology before publishing any pattern from this data.';
+}
+
 function escapeHtml(s) {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
@@ -2927,11 +3164,8 @@ function showInterrogation() {
   state.activeInvestigation = null;
   state.activeInvestigationIdx = null;
 
-  // Hide the active chart placeholder so the panel is the only visible thing
-  const placeholder = document.querySelector('#chart-wrap .chart-placeholder');
-  if (placeholder) placeholder.style.display = 'none';
-
-  // Show the interrogation panel
+  // Show the interrogation panel — it absolutely overlays chart-area
+  // (#interrogation-panel is a sibling of #chart-wrap with inset:0).
   const panel = document.getElementById('interrogation-panel');
   if (!panel) return;
   panel.style.display = 'block';
@@ -2950,8 +3184,6 @@ function showInterrogation() {
 
 function dismissInterrogation() {
   document.getElementById('interrogation-panel').style.display = 'none';
-  const placeholder = document.querySelector('#chart-wrap .chart-placeholder');
-  if (placeholder) placeholder.style.display = '';
   // Auto-select a column if none chosen yet, so the user lands on a working chart
   if (!state.activeColumn && state.columns.length) {
     const firstNum = state.columns.find(c => c.type === 'numeric');
